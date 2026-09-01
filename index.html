@@ -15,7 +15,7 @@ body{background:#000;font-family:'Segoe UI',sans-serif;padding:10px;min-height:1
 .badge{background:linear-gradient(90deg,#FF9800,#FF5722);color:#fff;padding:6px 12px;border-radius:20px;text-align:center;font-size:12px;font-weight:600;margin:10px 0}
 .info-box{background:#f5f5f5;border-radius:10px;padding:10px;text-align:center;font-size:11px;margin:10px 0}
 .green-box{background:#e8f5e9;border:2px solid #4CAF50;border-radius:10px;padding:10px;font-size:12px;margin:10px 0;line-height:1.5}
-input,select{width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;font-size:14px;margin:10px 0}
+input,select{width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;font-size:14px;margin:10px 0;background:#fff}
 label{font-weight:600;color:#333;font-size:14px}
 .btn{width:100%;padding:14px;border:none;border-radius:10px;font-size:15px;font-weight:700;margin:6px 0;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
 .btn-green{background:linear-gradient(90deg,#4CAF50,#45a049);color:#fff}
@@ -190,8 +190,9 @@ textarea{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-si
 <script>
 const ADMIN_PASS = 'Ram@894907';
 
+// Default Tests Initialization
 let tests = JSON.parse(localStorage.getItem('ath_tests')) || [];
-if(tests.length === 0) {
+if(!tests.length) {
   tests = [{
     name: "Sample LDC Test 2026", 
     text: "Rajasthan High Court LDC exam preparation requires high speed and accuracy in typing. Australian Typing Hub provides the best platform for daily practice. Candidates must practice regularly to achieve top rank in the examination. Hard work and dedication are the keys to success.", 
@@ -207,14 +208,17 @@ let cur = null, time = 0, timer = null, startTime = null, testDurationMinutes = 
 let wordsArray = [], typedWords = [], currentWordIndex = 0, currentInputChars = "";
 let selectedFontSize = "16px", lastResultText = '';
 
-window.onload = function() {
+// Safe Initialization on Page Load
+window.addEventListener('DOMContentLoaded', () => {
   populateHomeTestDropdown();
-};
+});
 
 function populateHomeTestDropdown(){
   tests = JSON.parse(localStorage.getItem('ath_tests')) || tests;
   const select = document.getElementById('homeTestSelect');
-  select.innerHTML = tests.map((t, index) => `<option value="${index}">${t.name} (${t.duration} Min)</option>`).join('');
+  if(select) {
+    select.innerHTML = tests.map((t, index) => `<option value="${index}">${t.name} (${t.duration} Min)</option>`).join('');
+  }
 }
 
 function showAdminLogin(){
@@ -268,6 +272,8 @@ function startTest(){
   time = testDurationMinutes * 60;
   startTime = Date.now();
   updateTimer();
+  
+  if(timer) clearInterval(timer);
   timer = setInterval(() => {
     time--;
     updateTimer();
@@ -330,7 +336,7 @@ function updateTimer(){
 }
 
 function submitTest(){
-  clearInterval(timer);
+  if(timer) clearInterval(timer);
   document.removeEventListener('click', focusHiddenInput);
   const hidden = document.getElementById('hiddenInput');
   if(hidden) hidden.removeEventListener('input', handleTypingInput);
@@ -450,4 +456,85 @@ function showMsg(t, c){
 function saveTest(){
   const name = document.getElementById('tname_input').value.trim();
   const text = document.getElementById('ttext').value.trim();
-  const duration = parseInt(document.getElementById('tmin_input').value)
+  const duration = parseInt(document.getElementById('tmin_input').value) || 5;
+  const max = parseFloat(document.getElementById('tmax').value) || 25;
+  const pass = parseFloat(document.getElementById('tpass').value) || 10;
+  if(!name || !text){ showMsg('❌ नाम और Passage जरूरी है', 'error'); return; }
+
+  tests = JSON.parse(localStorage.getItem('ath_tests')) || [];
+  tests.unshift({name, text, duration, max_marks: max, pass_marks: pass});
+  localStorage.setItem('ath_tests', JSON.stringify(tests));
+  showMsg('✅ नया Test Save हो गया!', 'success');
+  document.getElementById('tname_input').value = '';
+  document.getElementById('ttext').value = '';
+  loadTests();
+}
+
+function loadTests(){
+  tests = JSON.parse(localStorage.getItem('ath_tests')) || [];
+  const list = document.getElementById('testsList');
+  if(!tests.length){ 
+    list.innerHTML = '<p style="color:#666;text-align:center">कोई Test नहीं</p>'; 
+    return; 
+  }
+  list.innerHTML = tests.map((t, index) => `
+    <div class="test-item">
+      <div style="font-weight:bold;color:#1a237e">${t.name} (${t.duration} Min)</div>
+      <div>Max Marks: ${t.max_marks} | Pass: ${t.pass_marks}</div>
+      <button class="btn btn-red" style="padding:4px;font-size:11px;margin-top:4px" onclick="deleteTest(${index})">🗑️ डिलीट करें</button>
+    </div>`).join('');
+}
+
+function deleteTest(index){
+  tests = JSON.parse(localStorage.getItem('ath_tests')) || [];
+  tests.splice(index, 1);
+  localStorage.setItem('ath_tests', JSON.stringify(tests));
+  loadTests();
+  populateHomeTestDropdown();
+}
+
+function showResultsHistory(){
+  const box = document.getElementById('resultsHistoryBox');
+  const container = document.getElementById('resultsListContainer');
+  resultsHistory = JSON.parse(localStorage.getItem('ath_results_history')) || [];
+
+  box.style.display = 'block';
+  if(!resultsHistory.length){
+    container.innerHTML = '<p style="color:#666;text-align:center;font-size:12px">अभी तक किसी छात्र ने टेस्ट नहीं दिया है।</p>';
+    return;
+  }
+
+  container.innerHTML = resultsHistory.map(r => `
+    <div style="background:#fff;padding:8px;border-radius:6px;margin-bottom:6px;font-size:11px;border-left:4px solid ${r.status==='PASS'?'#4CAF50':'#f44336'}">
+      <div><b>👤 ${r.name}</b> | <span style="color:#1a237e">${r.testName}</span></div>
+      <div>⚡ Speed: <b>${r.netWpm} WPM</b> (Gross: ${r.grossWpm}) | 🎯 Acc: ${r.accuracy}%</div>
+      <div>🏆 Marks: ${r.marks} | Status: <b style="color:${r.status==='PASS'?'#2e7d32':'#c62828'}">${r.status}</b></div>
+      <div style="color:#888;font-size:10px">${r.date}</div>
+    </div>
+  `).join('');
+}
+
+function downloadResultsCSV(){
+  resultsHistory = JSON.parse(localStorage.getItem('ath_results_history')) || [];
+  if(!resultsHistory.length){
+    alert('डൗনलोड करने के लिए कोई रिजल्ट उपलब्ध नहीं है।');
+    return;
+  }
+
+  let csvContent = "Candidate Name,Test Name,Net WPM,Gross WPM,Accuracy,Marks,Status,Date & Time\n";
+  resultsHistory.forEach(r => {
+    csvContent += `"${r.name}","${r.testName}",${r.netWpm},${r.grossWpm},"${r.accuracy}%","${r.marks}","${r.status}","${r.date}"\n`;
+  });
+
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', `ATH_Students_Results_${new Date().toISOString().slice(0,10)}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+</script>
+</body>
+</html>
