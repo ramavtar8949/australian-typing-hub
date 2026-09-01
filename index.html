@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Australian Typing Hub - LDC 2026</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;font-family:'Segoe UI',sans-serif;padding:10px;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.main{background:#fff;border-radius:20px;padding:20px;width:100%;max-width:500px;box-shadow:0 0 30px rgba(255,255,255,0.3)}
+.logo{text-align:center;margin-bottom:10px}
+.ath-circle{width:50px;height:50px;background:#1a237e;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;border:3px solid #FFD700}
+.ath-text{color:#FFD700;font-size:18px;font-weight:900}
+.title{text-align:center;font-size:18px;font-weight:700;color:#1a237e;margin:8px 0}
+.badge{background:linear-gradient(90deg,#FF9800,#FF5722);color:#fff;padding:6px 12px;border-radius:20px;text-align:center;font-size:12px;font-weight:600;margin:10px 0}
+.info-box{background:#f5f5f5;border-radius:10px;padding:10px;text-align:center;font-size:11px;margin:10px 0}
+.green-box{background:#e8f5e9;border:2px solid #4CAF50;border-radius:10px;padding:10px;font-size:12px;margin:10px 0;line-height:1.5}
+input,select{width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;font-size:14px;margin:10px 0}
+label{font-weight:600;color:#333;font-size:14px}
+.btn{width:100%;padding:14px;border:none;border-radius:10px;font-size:15px;font-weight:700;margin:6px 0;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-green{background:linear-gradient(90deg,#4CAF50,#45a049);color:#fff}
+.btn-blue{background:linear-gradient(90deg,#2196F3,#1976D2);color:#fff}
+.btn-red{background:linear-gradient(90deg,#f44336,#d32f2f);color:#fff}
+.btn-wa{background:linear-gradient(90deg,#25D366,#128C7E);color:#fff}
+.btn-tg{background:linear-gradient(90deg,#0088cc,#006699);color:#fff}
+.loading{text-align:center;color:#FF9800;font-weight:600;margin:8px 0}
+#testArea,#resultPage,#adminPanel{display:none}
+
+/* Floating Clean Timer Bar */
+#timerBar{position:sticky;top:0;background:#1a237e;color:#fff;padding:10px;border-radius:8px;font-size:18px;font-weight:bold;text-align:center;z-index:100;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+
+/* Interactive Direct Typing Passage Container */
+#typingBoxContainer{background:#f8f9fa;padding:15px;border-radius:10px;border:2px solid #4CAF50;max-height:350px;overflow-y:auto;margin:10px 0;line-height:2}
+.t-word{display:inline-block;padding:0 3px;margin:2px;border-radius:4px;font-family:monospace}
+.t-word.current{background:#e3f2fd;border-bottom:2px solid #1976d2}
+.t-word.correct{color:#2e7d32;font-weight:bold}
+.t-word.incorrect{color:#c62828;background:#ffebee;font-weight:bold;text-decoration:underline}
+
+/* Hidden real input to catch mobile keyboard events */
+#hiddenInput{position:absolute;opacity:0;pointer-events:none;height:0;width:0}
+
+/* Scorecard & Details */
+.scorecard{border:3px solid #1a237e;border-radius:10px;padding:0;overflow:hidden;background:#fff}
+.scorecard-header{text-align:center;padding:15px;background:#fff;border-bottom:3px solid #1a237e}
+.scorecard-title{font-size:16px;font-weight:700;color:#1a237e;margin:5px 0}
+.scorecard-subtitle{color:#d32f2f;font-size:13px;font-weight:600}
+.scorecard-verify{font-size:11px;color:#666;margin-top:3px}
+.scorecard-name{text-align:left;padding:12px 15px;font-size:14px;border-bottom:1px solid #ddd}
+.scorecard-name b{color:#1a237e}
+.scorecard-table{width:100%;border-collapse:collapse}
+.scorecard-table th{background:#1a237e;color:#fff;padding:10px;text-align:left;font-size:13px}
+.scorecard-table td{padding:10px;border-bottom:1px solid #ddd;font-size:13px}
+.scorecard-table tr:nth-child(even){background:#f5f5f5}
+.status-fail{color:#d32f2f;font-weight:700}
+.status-pass{color:#2e7d32;font-weight:700}
+.marks-blue{color:#1976d2;font-weight:700}
+
+.detail-box{margin-top:12px;background:#f8f9fa;border:2px solid #ddd;border-radius:10px;padding:12px;text-align:left}
+.detail-title{font-weight:700;color:#1a237e;margin-bottom:6px;font-size:13px}
+.compare-text{font-size:14px;line-height:1.6;max-height:130px;overflow-y:auto;background:#fff;padding:8px;border-radius:6px;border:1px solid #ccc;font-family:monospace}
+.err-char{background:#ffebee;color:#c62828;text-decoration:underline;font-weight:bold}
+.ok-char{color:#2e7d32}
+
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:999}
+.modal-box{background:#fff;padding:25px;border-radius:20px;width:90%;max-width:400px;text-align:center}
+#msg{padding:8px;border-radius:6px;margin:8px 0;text-align:center;font-weight:600;font-size:13px}
+.success{background:#e8f5e9;color:#2e7d32}
+.error{background:#ffebee;color:#c62828}
+textarea{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-size:14px;margin:6px 0;font-family:'Segoe UI',sans-serif}
+.test-item{background:#f5f5f5;padding:10px;border-radius:6px;margin:6px 0;font-size:12px;text-align:left}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+<div class="main">
+<div id="homePage">
+<div class="logo"><div class="ath-circle"><span class="ath-text">ATH</span></div></div>
+<h1 class="title">🚀 Australian Typing Hub</h1>
+<div class="badge">🔥 Mission LDC 2026 – Exam Mode Typing 🔥</div>
+<div class="info-box">
+<div>📅 <b>सत्र: 2026 (Daily Practice Portal)</b></div>
+<div><b>संस्थापक: रामावतार महावर ऑस्ट्रेलियन</b></div>
+</div>
+<div class="green-box">🎁 <b>100% FREE Daily LDC Typing Test!</b> स्क्रीन पर सीधे टाइप करें, कोई अलग बॉक्स नहीं!</div>
+<div class="loading">Loading...</div>
+
+<label>अपना पूरा नाम दर्ज करें:</label>
+<input id="uname" placeholder="Ramavtar">
+
+<label>Test समय चुनें:</label>
+<select id="timeSelect">
+<option value="1">1 Minute</option>
+<option value="2">2 Minutes</option>
+<option value="5">5 Minutes</option>
+<option value="10" selected>10 Minutes</option>
+<option value="15">15 Minutes</option>
+<option value="30">30 Minutes</option>
+</select>
+
+<label>फॉन्ट साइज़ (Font Size) चुनें:</label>
+<select id="fontSizeSelect">
+<option value="14px">छोटा (Small - 14px)</option>
+<option value="16px" selected>मध्यम (Normal - 16px)</option>
+<option value="18px">बड़ा (Large - 18px)</option>
+<option value="20px">बहुत बड़ा (Extra Large - 20px)</option>
+</select>
+
+<button class="btn btn-green" onclick="startTest()">🚀 Start Exam Mode Test</button>
+<button class="btn btn-wa" onclick="window.open('https://t.me/ramavtar_8949','_blank')">📢 Telegram Group Join करें</button>
+<button class="btn btn-red" onclick="openAdmin()">🔐 Admin Panel</button>
+</div>
+
+<!-- Test Execution Area -->
+<div id="testArea">
+<div id="timerBar">
+<span id="testTitleMini">LDC Test</span>
+<span id="timer">⏱️ 10:00</span>
+</div>
+<div id="typingBoxContainer" onclick="focusHiddenInput()">
+<div id="renderPassage"></div>
+</div>
+<input type="text" id="hiddenInput" autocomplete="off" autocapitalize="off" spellcheck="false">
+<button class="btn btn-red" onclick="submit()" style="margin-top:10px">✅ Submit Test</button>
+</div>
+
+<!-- Result Page -->
+<div id="resultPage">
+<div id="captureArea">
+<div class="scorecard">
+<div class="scorecard-header">
+<div class="scorecard-title">AUSTRALIAN TYPING HUB - LDC 2026</div>
+<div class="scorecard-subtitle">OFFICIAL PRACTICE SCORECARD</div>
+<div class="scorecard-verify">Verified by: Ramavtar Mahawar Australian</div>
+</div>
+<div class="scorecard-name">Candidate Name: <b id="rName"></b></div>
+<div class="scorecard-name">Date & Time: <b id="rDate" style="color:#d32f2f"></b></div>
+<table class="scorecard-table">
+<thead><tr><th>Performance Parameter</th><th>Result Details</th></tr></thead>
+<tbody id="rTable"></tbody>
+</table>
+</div>
+<div class="detail-box">
+<div class="detail-title">📝 Detailed Passage Comparison (Mistakes in Red):</div>
+<div class="compare-text" id="compareContainer"></div>
+</div>
+</div>
+<button class="btn btn-green" onclick="downloadScorecard()" style="margin-top:12px">📥 Download Result Image</button>
+<button class="btn btn-wa" onclick="shareWhatsApp()">💬 Share on WhatsApp</button>
+<button class="btn btn-tg" onclick="shareTelegram()">✈️ Share on Telegram</button>
+<button class="btn btn-blue" onclick="window.print()">🖨️ Print Result</button>
+<button class="btn btn-red" onclick="location.reload()" style="background:#666">🔄 नया Test दें</button>
+</div>
+
+<!-- Admin Panel -->
+<div id="adminPanel">
+<h2 style="text-align:center">🔐 Admin Panel - ATH</h2>
+<div id="msg"></div>
+
+<button class="btn btn-blue" onclick="openAllResults()" style="margin-bottom:15px">📊 सभी बच्चों के Results & Ranks देखें</button>
+
+<div id="adminResultsSection" style="display:none;margin-bottom:15px;background:#f5f5f5;padding:10px;border-radius:10px">
+<h3 style="color:#1a237e;margin-bottom:8px;font-size:15px">🏆 Students Leaderboard & Results</h3>
+<div id="allResultsList" style="max-height:250px;overflow-y:auto"></div>
+<button class="btn" onclick="document.getElementById('adminResultsSection').style.display='none'" style="background:#666;font-size:12px;padding:8px">❌ Results छुपाएं</button>
+</div>
+
+<label>Test का नाम:</label>
+<input id="tname_input" placeholder="3 September LDC Test">
+<label>Passage Text (जितना मर्जी बड़ा):</label>
+<textarea id="ttext" placeholder="पूरा Passage यहाँ Paste करें..." rows="6"></textarea>
+<label>Max Marks:</label>
+<input id="tmax" type="number" value="25">
+<label>Pass Marks (Passing Criteria):</label>
+<input id="tpass" type="number" value="10">
+<button class="btn btn-green" onclick="saveTest()">✅ Test Save करें</button>
+<button class="btn" onclick="closeAdmin()" style="background:#666">❌ Close Panel</button>
+<h3 style="margin-top:15px;color:#1a237e">📋 Active Tests</h3>
+<div id="testsList" style="max-height:200px;overflow-y:auto"></div>
+</div>
+</div>
+
+<div class="modal" id="passModal">
+<div class="modal-box">
+<h2>🔐 Admin Login</h2>
+<p style="color:#666;margin:8px 0">Password डालें</p>
+<input id="adminPass" type="password" placeholder="Password">
+<button class="btn btn-green" onclick="checkPass()">Login</button>
+<button class="btn" onclick="closeModal()" style="background:#666">Cancel</button>
+<p id="passErr" style="color:#c62828;margin-top:8px"></p>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const ADMIN_PASS='Ram@894907';
+const db=supabase.createClient('https://lrxqhrznpqcagrrknolk.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxyeHFocnpucHFjYWdycmtub2xrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxODc5NTgsImV4cCI6MjEwMzc2Mzk1OH0.Zms5LDsEhEoz9mY33HPUsn1MPj3tIAvmFW1USnPBqaI');
+let tests=[],cur=null,time=0,timer=null,startTime=null,selectedMinutes=10;
+let wordsArray=[],typedWords=[],currentWordIndex=0,currentInputChars="";
+let selectedFontSize="16px", lastResultText='';
+
+async function load(){
+const {data}=await db.from('tests').select('*').eq('active',true).order('created_at',{ascending:false});
+tests=data||[];
+}
+load();
+
+function startTest(){
+const name=document.getElementById('uname').value.trim();
+if(!name){alert('कृपया अपना पूरा नाम दर्ज करें');return}
+if(!tests.length){alert('कोई Active Test उपलब्ध नहीं है। Admin से संपर्क करें।');return}
+cur=tests[0];
+selectedMinutes=parseInt(document.getElementById('timeSelect').value);
+selectedFontSize=document.getElementById('fontSizeSelect').value;
+
+document.getElementById('homePage').style.display='none';
+document.getElementById('testArea').style.display='block';
+document.getElementById('testTitleMini').innerText=cur.name;
+
+wordsArray=cur.text.trim().split(/\s+/);
+typedWords=[];
+currentWordIndex=0;
+currentInputChars="";
+
+renderPassageHTML();
+
+time=selectedMinutes*60;
+startTime=Date.now();
+updateTimer();
+timer=setInterval(()=>{time--;updateTimer();if(time<=0)submit()},1000);
+
+const hidden=document.getElementById('hiddenInput');
+hidden.value="";
+hidden.focus();
+document.addEventListener('click',focusHiddenInput);
+hidden.addEventListener('input',handleTypingInput);
+}
+
+function focusHiddenInput(){
+const hidden=document.getElementById('hiddenInput');
+if(hidden){hidden.focus();}
+}
+
+function renderPassageHTML(){
+const container=document.getElementById('renderPassage');
+container.style.fontSize=selectedFontSize;
+let html="";
+for(let i=0; i<wordsArray.length; i++){
+let cls="t-word";
+if(i===currentWordIndex) cls+=" current";
+if(i<typedWords.length){
+if(typedWords[i]===wordsArray[i]) cls+=" correct";
+else cls+=" incorrect";
+}
+let displayWord = wordsArray[i];
+if(i===currentWordIndex && currentInputChars.length>0){
+displayWord = currentInputChars;
+}
+html+=`<span class="${cls}" id="w-${i}">${displayWord}</span> `;
+}
+container.innerHTML=html;
+
+const activeEl=document.getElementById(`w-${currentWordIndex}`);
+if(activeEl){
+activeEl.scrollIntoView({behavior:'smooth', block:'center'});
+}
+}
+
+function handleTypingInput(e){
+const val=e.target.value;
+if(val.endsWith(' ')){
+let typedWord=val.trim();
+typedWords.push(typedWord);
+currentWordIndex++;
+currentInputChars="";
+e.target.value="";
+if(currentWordIndex>=wordsArray.length){
+submit();
+return;
+}
+}else{
+currentInputChars=val;
+}
+renderPassageHTML();
+}
+
+function updateTimer(){
+const m=Math.floor(time/60),s=time%60;
+document.getElementById('timer').innerText=`⏱️ ${m}:${s.toString().padStart(2,'0')}`;
+}
+
+async function submit(){
+clearInterval(timer);
+document.removeEventListener('click',focusHiddenInput);
+const hidden=document.getElementById('hiddenInput');
+if(hidden) hidden.removeEventListener('input',handleTypingInput);
+
+if(currentInputChars.trim().length>0 && currentWordIndex<wordsArray.length){
+typedWords.push(currentInputChars.trim());
+}
+
+const timeMin=(Date.now()-startTime)/60000;
+const timeTakenSec=Math.round((Date.now()-startTime)/1000);
+const totalTypedCount=typedWords.length;
+const wpm=timeMin>0?Math.round(totalTypedCount/timeMin):0;
+
+let correctWordsCount=0;
+for(let i=0;i<typedWords.length;i++){
+if(i<wordsArray.length && typedWords[i]===wordsArray[i]) correctWordsCount++;
+}
+
+const accuracy=totalTypedCount>0?Math.round((correctWordsCount/totalTypedCount)*100):100;
+
+const maxMarks=cur.max_marks;
+const passMarks=cur.pass_marks;
+const totalPassageWords=wordsArray.length;
+
+let marks= (correctWordsCount / totalPassageWords) * maxMarks;
+if(marks<0) marks=0;
+if(marks>maxMarks) marks=maxMarks;
+
+const passed=marks>=passMarks;
+const mins=Math.floor(timeTakenSec/60),secs=timeTakenSec%60;
+const candidateName=document.getElementById('uname').value;
+
+await db.from('results').insert([{
+user_name:candidateName,
+test_name:cur.name,
+wpm:wpm,
+accuracy:accuracy,
+words:totalTypedCount,
+marks:parseFloat(marks.toFixed(2)),
+passed:passed,
+time_taken:timeTakenSec
+}]);
+
+document.getElementById('testArea').style.display='none';
+document.getElementById('resultPage').style.display='block';
+document.getElementById('rName').innerText=candidateName;
+const now=new Date();
+const dateStr=`${now.getDate().toString().padStart(2,'0')}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getFullYear()}, ${now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true})}`;
+document.getElementById('rDate').innerText=dateStr;
+
+document.getElementById('rTable').innerHTML=`
+<tr><td>Total Time Taken</td><td>${mins}m ${secs}s</td></tr>
+<tr><td>Maximum Marks</td><td>${maxMarks}</td></tr>
+<tr><td>Passing Marks</td><td>${passMarks}</td></tr>
+<tr><td>Marks Obtained</td><td class="marks-blue">${marks.toFixed(2)}</td></tr>
+<tr><td>Final Status</td><td class="${passed?'status-pass':'status-fail'}">${passed?'QUALIFIED (PASS)':'NOT QUALIFIED (FAIL)'}</td></tr>
+<tr><td>Total Words Typed</td><td>${totalTypedCount}</td></tr>
+<tr><td>Correct Words</td><td>${correctWordsCount}</td></tr>
+<tr><td>Gross Speed</td><td>${wpm} WPM</td></tr>
+<tr><td>Accuracy</td><td>${accuracy}%</td></tr>
+`;
+
+let compareHTML='';
+for(let i=0;i<wordsArray.length;i++){
+let expected=wordsArray[i];
+let userW=typedWords[i]||"";
+if(userW===expected){
+compareHTML+=`<span class="ok-char">${escapeHtml(userW)}</span> `;
+}else{
+compareHTML+=`<span class="err-char" title="Expected: '${expected}', Typed: '${userW}'">${escapeHtml(userW||'___')}</span> `;
+}
+}
+document.getElementById('compareContainer').innerHTML=compareHTML;
+
+lastResultText=`🚀 Australian Typing Hub - LDC 2026\n👤 Candidate: ${candidateName}\n📊 Test: ${cur.name}\n⚡ Speed: ${wpm} WPM\n🎯 Accuracy: ${accuracy}%\n🏆 Marks: ${marks.toFixed(2)} / ${maxMarks}\n📌 Status: ${passed?'PASS':'FAIL'}\n\nJoin Free Daily Portal: https://t.me/ramavtar_8949`;
+}
+
+function escapeHtml(text){
+return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function downloadScorecard(){
+const captureEl=document.getElementById('captureArea');
+html2canvas(captureEl,{scale:2,useCORS:true}).then(canvas=>{
+const link=document.createElement('a');
+link.download=`ATH_LDC_Result_${document.getElementById('uname').value}.png`;
+link.href=canvas.toDataURL('image/png');
+link.click();
+});
+}
+
+function shareWhatsApp(){
+window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(lastResultText)}`,'_blank');
+}
+
+function shareTelegram(){
+window.open(`https://t.me/share/url?url=${encodeURIComponent('https://t.me/ramavtar_8949')}&text=${encodeURIComponent(lastResultText)}`,'_blank');
+}
+
+async function openAllResults(){
+const section=document.getElementById('adminResultsSection');
+section.style.display='block';
+const list=document.getElementById('allResultsList');
+list.innerHTML='<p style="text-align:center;color:#666">Loading results & ranks...</p>';
+
+const {data,error}=await db.from('results').select('*').order('marks',{ascending:false}).limit(100);
+if(error || !data || !data.length){
+list.innerHTML='<p style="text-align:center;color:#666">कोई रिजल्ट उपलब्ध नहीं है।</p>';
+return;
+}
+
+list.innerHTML=data.map((r, index)=>`
+<div class="test-item" style="border-left:4px solid ${r.passed?'#4CAF50':'#f44336'}">
+<b>#${index+1} 👤 ${r.user_name}</b> (${r.test_name})<br>
+⚡ Speed: <b>${r.wpm} WPM</b> | 🎯 Accuracy: <b>${r.accuracy}%</b><br>
+🏆 Marks: <span style="color:#1976d2;font-weight:bold">${r.marks}</span> | Status: <span class="${r.passed?'status-pass':'status-fail'}">${r.passed?'PASS':'FAIL'}</span><br>
+<span style="font-size:10px;color:#888">🕒 ${new Date(r.created_at).toLocaleString()}</span>
+</div>
+`).join('');
+}
+
+function openAdmin(){
+document.getElementById('passModal').style.display='flex';
+document.getElementById('adminPass').focus();
+}
+function closeModal(){
+document.getElementById('passModal').style.display='none';
+document.getElementById('adminPass').value='';
+document.getElementById('passErr').innerText='';
+}
+function checkPass(){
+if(document.getElementById('adminPass').value===ADMIN_PASS){
+closeModal();
+document.getElementById('homePage').style.display='none';
+document.getElementById('adminPanel').style.display='block';
+loadTests();
+}else{
+document.getElementById('passErr').innerText='❌ गलत Password';
+}
+}
+function closeAdmin(){
+document.getElementById('adminPanel').style.display='none';
+document.getElementById('adminResultsSection').style.display='none';
+document.getElementById('homePage').style.display='block';
+}
+function showMsg(t,c){
+const m=document.getElementById('msg');
+m.className=c;
+m.innerText=t;
+setTimeout(()=>m.innerText='',3000);
+}
+
+async function saveTest(){
+const name=document.getElementById('tname_input').value.trim();
+const text=document.getElementById('ttext').value.trim();
+const max=parseFloat(document.getElementById('tmax').value)||25;
+const pass=parseFloat(document.getElementById('tpass').value)||10;
+if(!name||!text){showMsg('❌ नाम और Passage जरूरी है','error');return}
+showMsg('⏳ Saving...','info');
+const words=text.split(/\s+/).filter(w=>w).length;
+const {error}=await db.from('tests').insert([{
+name,text,minutes:10,total_words:words,max_marks:max,pass_marks:pass,active:true
+}]);
+if(error){showMsg('❌ '+error.message,'error')}
+else{
+showMsg('✅ Test Save हो गया!','success');
+document.ge
