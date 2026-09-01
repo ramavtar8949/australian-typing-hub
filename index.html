@@ -7,39 +7,36 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#000;font-family:'Segoe UI',sans-serif;padding:10px;min-height:100vh;display:flex;align-items:center;justify-content:center}
-.main{background:#fff;border-radius:20px;padding:20px;width:100%;max-width:500px;box-shadow:0 0 30px rgba(255,255,255,0.3)}
+.card{background:#fff;border-radius:20px;padding:20px;width:100%;max-width:500px;box-shadow:0 0 30px rgba(255,255,255,0.3)}
 .logo{text-align:center;margin-bottom:10px}
-.ath-circle{width:50px;height:50px;background:#1a237e;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;border:3px solid #FFD700}
-.ath-text{color:#FFD700;font-size:18px;font-weight:900}
+.th-circle{width:50px;height:50px;background:#1a237e;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:900}
+.th-text{color:#FFD700;font-size:18px;font-weight:900}
 .title{text-align:center;font-size:18px;font-weight:700;color:#1a237e;margin:8px 0}
-.badge{background:linear-gradient(90deg,#FF9800,#FF5722);color:#fff;padding:6px 12px;border-radius:20px;text-align:center;font-size:12px;font-weight:600;margin:10px 0}
+.badge{background:linear-gradient(90deg,#FF9800,#FF5722);color:#fff;padding:6px 12px;border-radius:20px;text-align:center;font-size:11px;font-weight:700;margin:10px 0}
 .info-box{background:#f5f5f5;border-radius:10px;padding:10px;text-align:center;font-size:11px;margin:10px 0}
-.green-box{background:#e8f5e9;border:2px solid #4CAF50;border-radius:10px;padding:10px;font-size:12px;margin:10px 0;line-height:1.5}
+.icon-box{background:#e8f5e9;border:2px solid #4CAF50;border-radius:10px;padding:10px;font-size:12px;margin:10px 0;line-height:1.5}
 input,select{width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;font-size:14px;margin:10px 0;background:#fff}
-label{font-weight:600;color:#333;font-size:14px}
-.btn{width:100%;padding:14px;border:none;border-radius:10px;font-size:15px;font-weight:700;margin:6px 0;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+input:focus,select:focus{border-color:#1a237e;outline:none}
+.btn{width:100%;padding:14px;border:none;border-radius:10px;font-size:15px;font-weight:700;margin:6px 0;cursor:pointer;display:block;text-align:center;text-decoration:none}
 .btn-green{background:linear-gradient(90deg,#4CAF50,#45a049);color:#fff}
 .btn-blue{background:linear-gradient(90deg,#2196F3,#1976D2);color:#fff}
 .btn-red{background:linear-gradient(90deg,#f44336,#d32f2f);color:#fff}
 .btn-tg{background:linear-gradient(90deg,#0088cc,#006699);color:#fff}
-
 #homePage,#adminLoginBox,#testArea,#resultPage,#adminPanel{display:none}
-
-#timerBar{position:sticky;top:0;background:#1a237e;color:#fff;padding:10px;border-radius:8px;font-size:18px;font-weight:bold;text-align:center;z-index:100;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
-#typingBoxContainer{background:#f8f9fa;padding:15px;border-radius:10px;border:2px solid #4CAF50;height:220px;overflow-y:auto;margin:10px 0;line-height:2}
-.t-word{display:inline-block;padding:0 3px;margin:2px;border-radius:4px;font-family:monospace}
-.t-word.current{background:#e3f2fd;border-bottom:2px solid #1976d2}
-.t-word.correct{color:#2e7d32;font-weight:bold}
-.t-word.incorrect{color:#c62828;background:#ffebee;font-weight:bold;text-decoration:underline}
-.t-word.typed-neutral{color:#555;background:#f1f1f1}
-#hiddenInput{position:absolute;opacity:0;pointer-events:none;height:0;width:0}
-
+.timerBar{position:sticky;top:0;background:#1a237e;color:#fff;padding:10px;border-radius:8px;font-size:18px;font-weight:bold;text-align:center;margin-bottom:10px}
+.typingBoxContainer{background:#f8f9fa;padding:15px;border-radius:10px;border:2px solid #4CAF50;height:220px;overflow-y:auto;margin-bottom:10px}
+.word{display:inline-block;padding:0 3px;margin:2px;border-radius:4px;font-family:monospace}
+.word.current{background:#e3f2fd;border-bottom:2px solid #1976d2}
+.word.correct{color:#2e7d32;font-weight:bold}
+.word.incorrect{color:#c62828;background:#ffabee;font-weight:bold;text-decoration:underline}
+.word.typed-neutral{color:#555;background:#f1f1f1}
+.hiddenInput{position:absolute;opacity:0;pointer-events:none;height:0;width:0}
 .scorecard{border:3px solid #1a237e;border-radius:10px;padding:0;overflow:hidden;background:#fff}
 .scorecard-header{text-align:center;padding:15px;background:#fff;border-bottom:3px solid #1a237e}
 .scorecard-title{font-size:16px;font-weight:700;color:#1a237e;margin:5px 0}
-.scorecard-subtitle{color:#d32f2f;font-size:13px;font-weight:600}
+.scorecard-subtitle{font-size:12px;font-weight:600}
 .scorecard-verify{font-size:11px;color:#666;margin-top:3px}
-.scorecard-name{text-align:left;padding:12px 15px;font-size:14px;border-bottom:1px solid #ddd}
+.scorecard-name{text-align:left;padding:12px;font-size:14px;border-bottom:1px solid #ddd}
 .scorecard-name b{color:#1a237e}
 .scorecard-table{width:100%;border-collapse:collapse}
 .scorecard-table th{background:#1a237e;color:#fff;padding:10px;text-align:left;font-size:13px}
@@ -48,260 +45,229 @@ label{font-weight:600;color:#333;font-size:14px}
 .status-fail{color:#d32f2f;font-weight:700}
 .status-pass{color:#2e7d32;font-weight:700}
 .marks-blue{color:#1976d2;font-weight:700}
-
-.detail-box{margin-top:12px;background:#f8f9fa;border:2px solid #ddd;border-radius:10px;padding:12px;text-align:left}
-.detail-title{font-weight:700;color:#1a237e;margin-bottom:6px;font-size:13px}
-.compare-text{font-size:14px;line-height:1.6;max-height:130px;overflow-y:auto;background:#fff;padding:8px;border-radius:6px;border:1px solid #ccc;font-family:monospace}
-.err-char{background:#ffebee;color:#c62828;text-decoration:underline;font-weight:bold}
-.ok-char{color:#2e7d32}
-
-#msg{padding:8px;border-radius:6px;margin:8px 0;text-align:center;font-weight:600;font-size:13px}
-.success{background:#e8f5e9;color:#2e7d32}
-.error{background:#ffebee;color:#c62828}
+.stat-box{margin-top:12px;background:#f8f9fa;border:1px solid #ddd;border-radius:12px;padding:12px;text-align:left}
+.stat-title{font-weight:700;color:#1a237e;margin-bottom:6px}
+.compare-text{font-size:14px;line-height:1.6;max-height:130px;overflow-y:auto;background:#fff;padding:8px;border-radius:6px;border:1px solid #ddd}
+.r-char{background:#ffabee;color:#c62828;text-decoration:underline;font-weight:bold}
+.c-char{color:#2e7d32}
+.msg{padding:8px;border-radius:6px;margin:8px 0;text-align:center;font-weight:600;font-size:13px}
+.success{background:#d4edda;color:#155724}
+.error{background:#f8d7da;color:#721c24}
 textarea{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-size:14px;margin:6px 0;font-family:'Segoe UI',sans-serif}
-.test-item{background:#f5f5f5;padding:10px;border-radius:6px;margin:6px 0;font-size:12px;text-align:left}
+.test-item{background:#f5f5f5;padding:10px;border-radius:8px;margin-bottom:8px;font-size:13px}
 .hidden-admin-link{text-align:center;margin-top:15px;font-size:11px;color:#888;cursor:pointer}
 .hidden-admin-link:hover{color:#1a237e;text-decoration:underline}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
-<div class="main">
-
-<!-- Home Page -->
-<div id="homePage" style="display:block;">
-<div class="logo"><div class="ath-circle"><span class="ath-text">ATH</span></div></div>
-<h1 class="title">🚀 Australian Typing Hub</h1>
-<div class="badge">🔥 Mission LDC 2026 – Exam Mode Typing 🔥</div>
-<div class="info-box">
-<div>📅 <b>सत्र: 2026 (Daily Practice Portal)</b></div>
-<div><b>संस्थापक: रामावतार महावर ऑस्ट्रेलियन</b></div>
-</div>
-<div class="green-box">🎁 <b>100% FREE Daily LDC Typing Test!</b> स्क्रीन पर सीधे टाइप करें, कोई अलग बॉक्स नहीं!</div>
-
-<label>अपना पूरा नाम दर्ज करें:</label>
-<input id="uname" placeholder="Ramavtar">
-
-<label>रोज़ाना के Tests की सूची (Select Test):</label>
-<select id="homeTestSelect"></select>
-
-<label>फॉन्ट साइज़ (Font Size) चुनें:</label>
-<select id="fontSizeSelect">
-<option value="14px">छोटा (Small - 14px)</option>
-<option value="16px" selected>मध्यम (Normal - 16px)</option>
-<option value="18px">बड़ा (Large - 18px)</option>
-<option value="20px">बहुत बड़ा (Extra Large - 20px)</option>
-</select>
-
-<button class="btn btn-green" onclick="startTest()">🚀 Start Exam Mode Test</button>
-<button class="btn btn-tg" onclick="window.open('https://t.me/ldctop100rank2026','_blank')">📢 Telegram Group Join करें</button>
-
-<div class="hidden-admin-link" onclick="showAdminLogin()">🔒 Admin Portal Login</div>
-</div>
-
-<!-- Admin Login Box -->
-<div id="adminLoginBox">
-<h2 style="text-align:center;color:#1a237e;margin-bottom:10px">🔐 Admin Login</h2>
-<div id="loginMsg"></div>
-<label>पासवर्ड दर्ज करें:</label>
-<input type="password" id="adminPassInput" placeholder="Enter Password">
-<button class="btn btn-green" onclick="verifyAdminPass()">✅ Login करें</button>
-<button class="btn" onclick="cancelAdminLogin()" style="background:#666">❌ Back to Home</button>
-</div>
-
-<!-- Test Execution Area -->
-<div id="testArea">
-<div id="timerBar">
-<span id="testTitleMini">LDC Test</span>
-<span id="timer">⏱️ 10:00</span>
-</div>
-<div id="typingBoxContainer" onclick="focusHiddenInput()">
-<div id="renderPassage"></div>
-</div>
-<input type="text" id="hiddenInput" autocomplete="off" autocapitalize="off" spellcheck="false">
-<button class="btn btn-red" onclick="submitTest()" style="margin-top:10px">✅ Submit Test</button>
-</div>
-
-<!-- Result Page -->
-<div id="resultPage">
-<div id="captureArea">
-<div class="scorecard">
-<div class="scorecard-header">
-<div class="scorecard-title">AUSTRALIAN TYPING HUB - LDC 2026</div>
-<div class="scorecard-subtitle">OFFICIAL PRACTICE SCORECARD</div>
-<div class="scorecard-verify">Verified by: Ramavtar Mahawar Australian</div>
-</div>
-<div class="scorecard-name">Candidate Name: <b id="rName"></b></div>
-<div class="scorecard-name">Date & Time: <b id="rDate" style="color:#d32f2f"></b></div>
-<table class="scorecard-table">
-<thead><tr><th>Performance Parameter</th><th>Result Details</th></tr></thead>
-<tbody id="rTable"></tbody>
-</table>
-</div>
-<div class="detail-box">
-<div class="detail-title">📝 Detailed Passage Comparison (Mistakes in Red):</div>
-<div class="compare-text" id="compareContainer"></div>
-</div>
-</div>
-<button class="btn btn-green" onclick="downloadScorecard()" style="margin-top:12px">📥 Download Result Image</button>
-<button class="btn btn-blue" onclick="shareWhatsApp()">💬 Share on WhatsApp</button>
-<button class="btn btn-tg" onclick="shareTelegram()">✈️ Share on Telegram</button>
-<button class="btn btn-blue" onclick="window.print()">🖨️ Print Result</button>
-<button class="btn btn-red" onclick="location.reload()" style="background:#666">🔄 नया Test दें</button>
-</div>
-
-<!-- Admin Panel -->
-<div id="adminPanel">
-<h2 style="text-align:center;color:#1a237e">🔐 Admin Panel - ATH</h2>
-<div id="msg"></div>
-<label>Test का नाम:</label>
-<input id="tname_input" placeholder="3 September LDC Test">
-<label>Passage Text:</label>
-<textarea id="ttext" placeholder="पूरा Passage यहाँ Paste करें..." rows="5"></textarea>
-<label>Test का समय (मिनट में):</label>
-<select id="tmin_input">
-<option value="1">1 Minute</option>
-<option value="2">2 Minutes</option>
-<option value="5" selected>5 Minutes</option>
-<option value="10">10 Minutes</option>
-<option value="15">15 Minutes</option>
-<option value="30">30 Minutes</option>
-</select>
-<label>Max Marks:</label>
-<input id="tmax" type="number" value="25">
-<label>Pass Marks:</label>
-<input id="tpass" type="number" value="10">
-<button class="btn btn-green" onclick="saveTest()">✅ नया Test Save करें</button>
-<button class="btn btn-blue" onclick="showResultsHistory()" style="margin-top:6px">👥 Students Results देखें</button>
-<button class="btn" onclick="closeAdmin()" style="background:#666">❌ Close Panel</button>
-
-<h3 style="margin-top:15px;color:#1a237e">📋 Active Tests List</h3>
-<div id="testsList" style="max-height:130px;overflow-y:auto"></div>
-
-<div id="resultsHistoryBox" style="margin-top:15px;display:none">
-<h3 style="color:#1a237e">📊 Students Test History</h3>
-<button class="btn btn-green" onclick="downloadResultsCSV()" style="font-size:13px;padding:10px;margin-bottom:8px">📥 Download Results CSV (Excel)</button>
-<div id="resultsListContainer" style="max-height:160px;overflow-y:auto;background:#f5f5f5;padding:8px;border-radius:6px"></div>
-</div>
-</div>
-
+<div class="card">
+  <div id="homePage" style="display: block;">
+    <div class="logo">
+      <div class="th-circle">ATH</div>
+      <div class="th-text">AUSTRALIAN TYPING HUB</div>
+    </div>
+    <div class="title">LDC 2026 Selection Portal</div>
+    <div class="badge">🚀 Rajasthan LDC & High Court Typing Special</div>
+    <div class="icon-box">
+      <b>📌 निर्देश:</b><br>• अपना नाम दर्ज करें और फोल्डर चुनें।<br>• टाइपिंग शुरू करने के लिए स्पेस (Space) दबाएं।<br>• बैकस्पेस (Backspace) पूरी तरह बंद है।
+    </div>
+    <input type="text" id="uname" placeholder="👤 अपना पूरा नाम दर्ज करें..." autocomplete="off">
+    <label style="font-size:12px;font-weight:bold;color:#1a237e">📁 टेस्ट फोल्डर चुनें:</label>
+    <select id="folderSelect"></select>
+    <button class="btn btn-green" onclick="startTest()">🚀 टेस्ट शुरू करें</button>
+    <div class="hidden-admin-link" onclick="openAdminLogin()">🔒 Admin Panel (Add Test / Results)</div>
+  </div>
+  <div id="adminLoginBox">
+    <div class="title">🔐 Admin Login</div>
+    <input type="password" id="adminPin" placeholder="Enter Admin PIN (Default: 1234)">
+    <button class="btn btn-blue" onclick="verifyAdminPin()">Login</button>
+    <button class="btn btn-red" onclick="backHome()">Back</button>
+    <div id="adminMsg"></div>
+  </div>
+  <div id="adminPanel">
+    <div class="title">⚙️ Admin Control Panel</div>
+    <div id="msg"></div>
+    <div style="background:#f8f9fa;padding:10px;border-radius:10px;margin-bottom:10px">
+      <b style="color:#1a237e;font-size:13px">➕ नया Test जोड़ें</b>
+      <input type="text" id="tname_input" placeholder="Test Name (e.g. Passage 1)">
+      <select id="tmin_input">
+        <option value="5">5 Minutes Folder</option>
+        <option value="10">10 Minutes Folder</option>
+        <option value="15">15 Minutes Folder</option>
+      </select>
+      <textarea id="ttext" rows="3" placeholder="यहाँ पूरा Passage टाइप या पेस्ट करें..."></textarea>
+      <div style="display:flex;gap:6px">
+        <input type="number" id="tmax" placeholder="Max Marks (e.g. 25)" value="25">
+        <input type="number" id="tpass" placeholder="Passing Marks (e.g. 10)" value="10">
+      </div>
+      <button class="btn btn-green" onclick="saveTest()">💾 Save Test</button>
+    </div>
+    <div id="adminFoldersList" style="max-height:120px;overflow-y:auto;margin-bottom:10px"></div>
+    <button class="btn btn-blue" onclick="showResultsHistory()">📊 छात्रों के रिजल्ट्स देखें (History)</button>
+    <div id="resultsHistoryBox" style="display:none;margin-top:10px;background:#f5f5f5;padding:10px;border-radius:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <b>📋 सभी छात्रों के रिजल्ट्स:</b>
+        <button class="btn btn-green" style="width:auto;padding:4px 8px;font-size:11px;margin:0" onclick="downloadResultsCSV()">📥 Download CSV</button>
+      </div>
+      <div id="resultsListContainer" style="max-height:150px;overflow-y:auto"></div>
+    </div>
+    <button class="btn btn-red" style="margin-top:10px" onclick="closeAdmin()">❌ Close Admin</button>
+  </div>
+  <div id="testArea">
+    <div class="timerBar" id="timer">⏱️ 05:00</div>
+    <div style="font-size:12px;font-weight:bold;color:#1a237e;margin-bottom:4px">📝 नीचे दिए गए टेक्स्ट को देखकर टाइप करें:</div>
+    <div class="typingBoxContainer" id="typingContainer" onclick="focusHiddenInput()">
+      <div id="passageHTML"></div>
+    </div>
+    <input type="text" id="hiddenInput" class="hiddenInput">
+    <div style="font-size:11px;color:#666;text-align:center;margin-top:6px">⚠️ Backspace Key Disabled. Spacebar switches to next word.</div>
+  </div>
+  <div id="resultPage">
+    <div id="captureArea" style="background:#fff;padding:5px">
+      <div class="scorecard">
+        <div class="scorecard-header">
+          <div class="th-circle" style="width:40px;height:40px;font-size:14px">ATH</div>
+          <div class="scorecard-title">AUSTRALIAN TYPING HUB</div>
+          <div class="scorecard-subtitle">RAJASTHAN LDC / HIGH COURT EXAM 2026</div>
+          <div class="scorecard-verify">Official Scorecard & Performance Report</div>
+        </div>
+        <div class="scorecard-name">
+          Candidate Name: <b id="rName"></b><br>
+          Test Date & Time: <span id="rDate" style="color:#666"></span>
+        </div>
+        <table class="scorecard-table" id="rTable"></table>
+      </div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-title">🔍 शब्द मिलान रिपोर्ट (Mistake Analysis):</div>
+      <div class="compare-text" id="compareContainer"></div>
+    </div>
+    <button class="btn btn-green" style="margin-top:12px" onclick="downloadScorecard()">📥 Download Scorecard (PNG)</button>
+    <button class="btn btn-blue" onclick="shareWhatsApp()">📲 Share on WhatsApp</button>
+    <button class="btn btn-tg" onclick="shareTelegram()">✈️ Join Telegram Channel</button>
+    <button class="btn btn-red" onclick="location.reload()">🔄 Take Another Test</button>
+  </div>
 </div>
 
 <script>
-const ADMIN_PASS = 'Ram@894907';
-
-// Default Tests Initialization
-let tests = JSON.parse(localStorage.getItem('ath_tests')) || [];
-if(!tests.length) {
-  tests = [{
-    name: "Sample LDC Test 2026", 
-    text: "Rajasthan High Court LDC exam preparation requires high speed and accuracy in typing. Australian Typing Hub provides the best platform for daily practice. Candidates must practice regularly to achieve top rank in the examination. Hard work and dedication are the keys to success.", 
+const defaultTests = [
+  {
+    name: "Standard Passage 1 (Demo)",
+    text: "The government has introduced several new welfare schemes aimed at uplifting rural communities across the state. Officials stated that transparency and timely execution will remain the top priority for all departments involved in infrastructural development projects.",
     duration: 5,
-    max_marks: 25, 
+    max_marks: 25,
     pass_marks: 10
-  }];
+  },
+  {
+    name: "High Court Legal Passage 2",
+    text: "A writ petition was filed before the honorable high court challenging the constitutional validity of the recent administrative notification regarding municipal elections. The bench comprising senior judges issued notices to the respondents and scheduled the next hearing for coming Tuesday.",
+    duration: 10,
+    max_marks: 50,
+    pass_marks: 20
+  }
+];
+
+let tests = JSON.parse(localStorage.getItem('ath_tests')) || defaultTests;
+if(!localStorage.getItem('ath_tests')){
   localStorage.setItem('ath_tests', JSON.stringify(tests));
 }
 
 let resultsHistory = JSON.parse(localStorage.getItem('ath_results_history')) || [];
-let cur = null, time = 0, timer = null, startTime = null, testDurationMinutes = 5;
-let wordsArray = [], typedWords = [], currentWordIndex = 0, currentInputChars = "";
-let selectedFontSize = "16px", lastResultText = '';
+const timeFolders = [5, 10, 15];
 
-// Safe Initialization on Page Load
-window.addEventListener('DOMContentLoaded', () => {
-  populateHomeTestDropdown();
-});
-
-function populateHomeTestDropdown(){
-  tests = JSON.parse(localStorage.getItem('ath_tests')) || tests;
-  const select = document.getElementById('homeTestSelect');
-  if(select) {
-    select.innerHTML = tests.map((t, index) => `<option value="${index}">${t.name} (${t.duration} Min)</option>`).join('');
-  }
+function renderHomeFolders(){
+  tests = JSON.parse(localStorage.getItem('ath_tests')) || defaultTests;
+  const sel = document.getElementById('folderSelect');
+  let html = '';
+  timeFolders.forEach(min => {
+    let folderTests = tests.filter(t => parseInt(t.duration) === min);
+    if(folderTests.length > 0){
+      html += `<optgroup label="📁 ${min} Minutes Folders (${folderTests.length} Tests)">`;
+      tests.forEach((t, idx) => {
+        if(parseInt(t.duration) === min){
+          html += `<option value="${idx}">${t.name} (${t.duration} Mins)</option>`;
+        }
+      });
+      html += `</optgroup>`;
+    }
+  });
+  sel.innerHTML = html;
 }
+renderHomeFolders();
 
-function showAdminLogin(){
+function openAdminLogin(){
   document.getElementById('homePage').style.display = 'none';
   document.getElementById('adminLoginBox').style.display = 'block';
-  document.getElementById('adminPassInput').value = '';
 }
 
-function cancelAdminLogin(){
+function backHome(){
   document.getElementById('adminLoginBox').style.display = 'none';
   document.getElementById('homePage').style.display = 'block';
 }
 
-function verifyAdminPass(){
-  const p = document.getElementById('adminPassInput').value;
-  const loginMsg = document.getElementById('loginMsg');
-  if(p === ADMIN_PASS){
+function verifyAdminPin(){
+  const pin = document.getElementById('adminPin').value;
+  if(pin === '1234'){
     document.getElementById('adminLoginBox').style.display = 'none';
     document.getElementById('adminPanel').style.display = 'block';
-    loadTests();
-    document.getElementById('resultsHistoryBox').style.display = 'none';
+    loadAdminFolders();
   } else {
-    loginMsg.className = 'error';
-    loginMsg.innerText = '❌ गलत पासवर्ड!';
-    setTimeout(() => loginMsg.innerText = '', 2000);
+    document.getElementById('adminMsg').innerHTML = '<div class="msg error">❌ गलत PIN! (डिफ़ॉल्ट: 1234)</div>';
   }
 }
 
+let cur = null, timer = null, time = 0, startTime = 0;
+let wordsArray = [], typedWords = [], currentWordIndex = 0, currentInputChars = "";
+let lastResultText = "";
+
 function startTest(){
   const name = document.getElementById('uname').value.trim();
-  if(!name){ alert('कृपया अपना पूरा नाम दर्ज करें'); return; }
-  tests = JSON.parse(localStorage.getItem('ath_tests')) || tests;
-  if(!tests.length){ alert('कोई Active Test उपलब्ध नहीं है।'); return; }
-  
-  const selectedIndex = document.getElementById('homeTestSelect').value;
-  cur = tests[selectedIndex] || tests[0];
-  testDurationMinutes = parseInt(cur.duration) || 5;
-  selectedFontSize = document.getElementById('fontSizeSelect').value;
-
+  const idx = document.getElementById('folderSelect').value;
+  if(!name){ alert('कृपया पहले अपना नाम दर्ज करें!'); return; }
+  tests = JSON.parse(localStorage.getItem('ath_tests')) || defaultTests;
+  cur = tests[idx];
+  if(!cur){ alert('कृपया टेस्ट चुनें!'); return; }
   document.getElementById('homePage').style.display = 'none';
   document.getElementById('testArea').style.display = 'block';
-  document.getElementById('testTitleMini').innerText = cur.name;
-
   wordsArray = cur.text.trim().split(/\s+/);
   typedWords = [];
   currentWordIndex = 0;
   currentInputChars = "";
-
+  time = parseInt(cur.duration) * 60;
   renderPassageHTML();
-
-  time = testDurationMinutes * 60;
-  startTime = Date.now();
-  updateTimer();
-  
-  if(timer) clearInterval(timer);
-  timer = setInterval(() => {
-    time--;
-    updateTimer();
-    if(time <= 0) submitTest();
-  }, 1000);
-
+  startTimer();
   const hidden = document.getElementById('hiddenInput');
   hidden.value = "";
   hidden.focus();
-  document.addEventListener('click', focusHiddenInput);
-  hidden.addEventListener('input', handleTypingInput);
+  hidden.oninput = handleTypingInput;
+  document.onclick = focusHiddenInput;
 }
 
 function focusHiddenInput(){
-  const hidden = document.getElementById('hiddenInput');
-  if(hidden) hidden.focus();
+  const h = document.getElementById('hiddenInput');
+  if(h) h.focus();
 }
 
 function renderPassageHTML(){
-  const container = document.getElementById('renderPassage');
-  container.style.fontSize = selectedFontSize;
-  let html = "";
+  const container = document.getElementById('passageHTML');
+  let html = '';
   for(let i = 0; i < wordsArray.length; i++){
-    let cls = "t-word";
-    if(i === currentWordIndex) cls += " current";
-    if(i < typedWords.length){
+    let cls = "word";
+    if(i < currentWordIndex){
       if(typedWords[i] === wordsArray[i]) cls += " correct";
-      else cls += " typed-neutral";
+      else cls += " incorrect";
+    } else if(i === currentWordIndex){
+      cls += " current";
+      // यदि वर्तमान शब्द टाइप करते समय गलत अक्षर लिखा जा रहा हो, तो तुरंत लाल रंग दिखाने के लिए:
+      if(currentInputChars.length > 0){
+        let targetSub = wordsArray[i].substring(0, currentInputChars.length);
+        if(currentInputChars !== targetSub){
+          cls += " incorrect";
+        }
+      }
+    } else {
+      cls += " typed-neutral";
     }
     let displayWord = wordsArray[i];
     if(i === currentWordIndex && currentInputChars.length > 0){
@@ -310,6 +276,10 @@ function renderPassageHTML(){
     html += `<span class="${cls}" id="w-${i}">${displayWord}</span> `;
   }
   container.innerHTML = html;
+  const activeEl = document.getElementById(`w-${currentWordIndex}`);
+  if(activeEl){
+    activeEl.scrollIntoView({behavior: 'smooth', block: 'center', inline: 'nearest'});
+  }
 }
 
 function handleTypingInput(e){
@@ -332,50 +302,55 @@ function handleTypingInput(e){
 
 function updateTimer(){
   const m = Math.floor(time / 60), s = time % 60;
-  document.getElementById('timer').innerText = `⏱️ ${m}:${s.toString().padStart(2, '0')}`;
+  document.getElementById('timer').innerText = `⏱️ ${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+}
+
+function startTimer(){
+  updateTimer();
+  startTime = Date.now();
+  timer = setInterval(() => {
+    time--;
+    updateTimer();
+    if(time <= 0){
+      clearInterval(timer);
+      submitTest();
+    }
+  }, 1000);
 }
 
 function submitTest(){
   if(timer) clearInterval(timer);
-  document.removeEventListener('click', focusHiddenInput);
+  document.onclick = null;
   const hidden = document.getElementById('hiddenInput');
-  if(hidden) hidden.removeEventListener('input', handleTypingInput);
-
+  if(hidden) hidden.oninput = null;
   if(currentInputChars.trim().length > 0 && currentWordIndex < wordsArray.length){
     typedWords.push(currentInputChars.trim());
   }
-
   const timeMin = (Date.now() - startTime) / 60000;
   const timeTakenSec = Math.round((Date.now() - startTime) / 1000);
   const totalTypedCount = typedWords.length;
   const grossWpm = timeMin > 0 ? Math.round(totalTypedCount / timeMin) : 0;
-
   let correctWordsCount = 0;
   for(let i = 0; i < typedWords.length; i++){
     if(i < wordsArray.length && typedWords[i] === wordsArray[i]) correctWordsCount++;
   }
-
   const netWpm = timeMin > 0 ? Math.round(correctWordsCount / timeMin) : 0;
   const accuracy = totalTypedCount > 0 ? Math.round((correctWordsCount / totalTypedCount) * 100) : 100;
   const maxMarks = cur.max_marks;
   const passMarks = cur.pass_marks;
   const totalPassageWords = wordsArray.length;
-
   let marks = (correctWordsCount / totalPassageWords) * maxMarks;
   if(marks < 0) marks = 0;
   if(marks > maxMarks) marks = maxMarks;
-
   const passed = marks >= passMarks;
   const mins = Math.floor(timeTakenSec / 60), secs = timeTakenSec % 60;
   const candidateName = document.getElementById('uname').value;
-
   const now = new Date();
   const dateStr = `${now.getDate().toString().padStart(2,'0')}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getFullYear()}, ${now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true})}`;
-
   resultsHistory = JSON.parse(localStorage.getItem('ath_results_history')) || [];
   resultsHistory.unshift({
     name: candidateName,
-    testName: cur.name,
+    testName: `${cur.name} (${cur.duration}m)`,
     date: dateStr,
     netWpm: netWpm,
     grossWpm: grossWpm,
@@ -384,13 +359,12 @@ function submitTest(){
     status: passed ? 'PASS' : 'FAIL'
   });
   localStorage.setItem('ath_results_history', JSON.stringify(resultsHistory));
-
   document.getElementById('testArea').style.display = 'none';
   document.getElementById('resultPage').style.display = 'block';
   document.getElementById('rName').innerText = candidateName;
   document.getElementById('rDate').innerText = dateStr;
-
   document.getElementById('rTable').innerHTML = `
+    <tr><td>Selected Test</td><td><b>${cur.name} (${cur.duration} Mins Folder)</b></td></tr>
     <tr><td>Total Time Taken</td><td>${mins}m ${secs}s</td></tr>
     <tr><td>Maximum Marks</td><td>${maxMarks}</td></tr>
     <tr><td>Passing Marks</td><td>${passMarks}</td></tr>
@@ -402,20 +376,18 @@ function submitTest(){
     <tr><td>Net Speed</td><td><b>${netWpm} WPM</b></td></tr>
     <tr><td>Accuracy</td><td>${accuracy}%</td></tr>
   `;
-
   let compareHTML = '';
   for(let i = 0; i < wordsArray.length; i++){
     let expected = wordsArray[i];
     let userW = typedWords[i] || "";
     if(userW === expected){
-      compareHTML += `<span class="ok-char">${escapeHtml(userW)}</span> `;
+      compareHTML += `<span class="c-char">${escapeHtml(userW)}</span> `;
     } else {
-      compareHTML += `<span class="err-char">${escapeHtml(userW || '___')}</span> `;
+      compareHTML += `<span class="r-char">${escapeHtml(userW || '___')}</span> `;
     }
   }
   document.getElementById('compareContainer').innerHTML = compareHTML;
-
-  lastResultText = `🚀 Australian Typing Hub - LDC 2026\n👤 Candidate: ${candidateName}\n📊 Test: ${cur.name}\n⚡ Net Speed: ${netWpm} WPM (Gross: ${grossWpm} WPM)\n🎯 Accuracy: ${accuracy}%\n🏆 Marks: ${marks.toFixed(2)} / ${maxMarks}\n📌 Status: ${passed?'PASS':'FAIL'}\n\nJoin Free Daily Portal: https://t.me/ldctop100rank2026`;
+  lastResultText = `🚀 Australian Typing Hub - LDC 2026\n👤 Candidate: ${candidateName}\n📊 Test: ${cur.name} (${cur.duration} Min)\n⚡ Net Speed: ${netWpm} WPM (Gross: ${grossWpm} WPM)\n🎯 Accuracy: ${accuracy}%\n🏆 Marks: ${marks.toFixed(2)} / ${maxMarks}\n📌 Status: ${passed?'PASS':'FAIL'}\n\nJoin Free Daily Portal: https://t.me/ldctop100rank2026`;
 }
 
 function escapeHtml(text){
@@ -440,101 +412,4 @@ function shareTelegram(){
   window.open(`https://t.me/share/url?url=${encodeURIComponent('https://t.me/ldctop100rank2026')}&text=${encodeURIComponent(lastResultText)}`, '_blank');
 }
 
-function closeAdmin(){
-  document.getElementById('adminPanel').style.display = 'none';
-  document.getElementById('homePage').style.display = 'block';
-  populateHomeTestDropdown();
-}
-
-function showMsg(t, c){
-  const m = document.getElementById('msg');
-  m.className = c;
-  m.innerText = t;
-  setTimeout(() => m.innerText = '', 3000);
-}
-
-function saveTest(){
-  const name = document.getElementById('tname_input').value.trim();
-  const text = document.getElementById('ttext').value.trim();
-  const duration = parseInt(document.getElementById('tmin_input').value) || 5;
-  const max = parseFloat(document.getElementById('tmax').value) || 25;
-  const pass = parseFloat(document.getElementById('tpass').value) || 10;
-  if(!name || !text){ showMsg('❌ नाम और Passage जरूरी है', 'error'); return; }
-
-  tests = JSON.parse(localStorage.getItem('ath_tests')) || [];
-  tests.unshift({name, text, duration, max_marks: max, pass_marks: pass});
-  localStorage.setItem('ath_tests', JSON.stringify(tests));
-  showMsg('✅ नया Test Save हो गया!', 'success');
-  document.getElementById('tname_input').value = '';
-  document.getElementById('ttext').value = '';
-  loadTests();
-}
-
-function loadTests(){
-  tests = JSON.parse(localStorage.getItem('ath_tests')) || [];
-  const list = document.getElementById('testsList');
-  if(!tests.length){ 
-    list.innerHTML = '<p style="color:#666;text-align:center">कोई Test नहीं</p>'; 
-    return; 
-  }
-  list.innerHTML = tests.map((t, index) => `
-    <div class="test-item">
-      <div style="font-weight:bold;color:#1a237e">${t.name} (${t.duration} Min)</div>
-      <div>Max Marks: ${t.max_marks} | Pass: ${t.pass_marks}</div>
-      <button class="btn btn-red" style="padding:4px;font-size:11px;margin-top:4px" onclick="deleteTest(${index})">🗑️ डिलीट करें</button>
-    </div>`).join('');
-}
-
-function deleteTest(index){
-  tests = JSON.parse(localStorage.getItem('ath_tests')) || [];
-  tests.splice(index, 1);
-  localStorage.setItem('ath_tests', JSON.stringify(tests));
-  loadTests();
-  populateHomeTestDropdown();
-}
-
-function showResultsHistory(){
-  const box = document.getElementById('resultsHistoryBox');
-  const container = document.getElementById('resultsListContainer');
-  resultsHistory = JSON.parse(localStorage.getItem('ath_results_history')) || [];
-
-  box.style.display = 'block';
-  if(!resultsHistory.length){
-    container.innerHTML = '<p style="color:#666;text-align:center;font-size:12px">अभी तक किसी छात्र ने टेस्ट नहीं दिया है।</p>';
-    return;
-  }
-
-  container.innerHTML = resultsHistory.map(r => `
-    <div style="background:#fff;padding:8px;border-radius:6px;margin-bottom:6px;font-size:11px;border-left:4px solid ${r.status==='PASS'?'#4CAF50':'#f44336'}">
-      <div><b>👤 ${r.name}</b> | <span style="color:#1a237e">${r.testName}</span></div>
-      <div>⚡ Speed: <b>${r.netWpm} WPM</b> (Gross: ${r.grossWpm}) | 🎯 Acc: ${r.accuracy}%</div>
-      <div>🏆 Marks: ${r.marks} | Status: <b style="color:${r.status==='PASS'?'#2e7d32':'#c62828'}">${r.status}</b></div>
-      <div style="color:#888;font-size:10px">${r.date}</div>
-    </div>
-  `).join('');
-}
-
-function downloadResultsCSV(){
-  resultsHistory = JSON.parse(localStorage.getItem('ath_results_history')) || [];
-  if(!resultsHistory.length){
-    alert('डൗনलोड करने के लिए कोई रिजल्ट उपलब्ध नहीं है।');
-    return;
-  }
-
-  let csvContent = "Candidate Name,Test Name,Net WPM,Gross WPM,Accuracy,Marks,Status,Date & Time\n";
-  resultsHistory.forEach(r => {
-    csvContent += `"${r.name}","${r.testName}",${r.netWpm},${r.grossWpm},"${r.accuracy}%","${r.marks}","${r.status}","${r.date}"\n`;
-  });
-
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.setAttribute('href', url);
-  link.setAttribute('download', `ATH_Students_Results_${new Date().toISOString().slice(0,10)}.csv`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
-</script>
-</body>
-</html>
+function closeAdmin()
