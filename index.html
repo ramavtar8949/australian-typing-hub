@@ -55,8 +55,6 @@ label{font-weight:600;color:#333;font-size:14px}
 .err-char{background:#ffebee;color:#c62828;text-decoration:underline;font-weight:bold}
 .ok-char{color:#2e7d32}
 
-.modal{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:999}
-.modal-box{background:#fff;padding:25px;border-radius:20px;width:90%;max-width:400px;text-align:center}
 #msg{padding:8px;border-radius:6px;margin:8px 0;text-align:center;font-weight:600;font-size:13px}
 .success{background:#e8f5e9;color:#2e7d32}
 .error{background:#ffebee;color:#c62828}
@@ -67,6 +65,7 @@ textarea{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-si
 </head>
 <body>
 <div class="main">
+<!-- Home Page -->
 <div id="homePage">
 <div class="logo"><div class="ath-circle"><span class="ath-text">ATH</span></div></div>
 <h1 class="title">🚀 Australian Typing Hub</h1>
@@ -173,17 +172,6 @@ textarea{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-si
 </div>
 </div>
 
-<div class="modal" id="passModal">
-<div class="modal-box">
-<h2>🔐 Admin Login</h2>
-<p style="color:#666;margin:8px 0">Password डालें</p>
-<input id="adminPass" type="password" placeholder="Password">
-<button class="btn btn-green" onclick="checkPass()">Login</button>
-<button class="btn" onclick="closeModal()" style="background:#666">Cancel</button>
-<p id="passErr" style="color:#c62828;margin-top:8px"></p>
-</div>
-</div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const ADMIN_PASS='Ram@894907';
@@ -199,7 +187,7 @@ const statusEl=document.getElementById('statusMsg');
 if(tests.length > 0){
 statusEl.style.display='none';
 }else{
-statusEl.innerText='⚠️ कोई Test उपलब्ध नहीं है! कृपया Admin Panel में जाकर Test जोड़ें।';
+statusEl.innerText='⚠️ कोई Test उपलब्ध नहीं है! कृपया Admin Panel से Test जोड़ें।';
 statusEl.style.color='#c62828';
 }
 }
@@ -376,7 +364,7 @@ function downloadScorecard(){
 const captureEl=document.getElementById('captureArea');
 html2canvas(captureEl,{scale:2,useCORS:true}).then(canvas=>{
 const link=document.createElement('a');
-link.download=`ATH_LDC_Result_${document.getElementById('uname').value}.png`;
+link.download=`ATH_LDC_Result_${document.getElementById('uname'].value}.png`;
 link.href=canvas.toDataURL('image/png');
 link.click();
 });
@@ -412,30 +400,24 @@ list.innerHTML=data.map((r, index)=>`
 `).join('');
 }
 
+// Direct Prompt Box for Admin Login (Guaranteed to work on all phones)
 function openAdmin(){
-document.getElementById('passModal').style.display='flex';
-document.getElementById('adminPass').focus();
-}
-function closeModal(){
-document.getElementById('passModal').style.display='none';
-document.getElementById('adminPass').value='';
-document.getElementById('passErr').innerText='';
-}
-function checkPass(){
-if(document.getElementById('adminPass').value===ADMIN_PASS){
-closeModal();
+let p = prompt("🔐 कृपया Admin Password दर्ज करें:");
+if(p === ADMIN_PASS){
 document.getElementById('homePage').style.display='none';
 document.getElementById('adminPanel').style.display='block';
 loadTests();
-}else{
-document.getElementById('passErr').innerText='❌ गलत Password';
+} else if(p !== null) {
+alert("❌ गलत पासवर्ड!");
 }
 }
+
 function closeAdmin(){
 document.getElementById('adminPanel').style.display='none';
 document.getElementById('adminResultsSection').style.display='none';
 document.getElementById('homePage').style.display='block';
 }
+
 function showMsg(t,c){
 const m=document.getElementById('msg');
 m.className=c;
@@ -452,4 +434,27 @@ if(!name||!text){showMsg('❌ नाम और Passage जरूरी है','
 showMsg('⏳ Saving...','info');
 const words=text.split(/\s+/).filter(w=>w).length;
 const {error}=await db.from('tests').insert([{
-name,text,minut
+name,text,minutes:10,total_words:words,max_marks:max,pass_marks:pass,active:true
+}]);
+if(error){showMsg('❌ '+error.message,'error')}
+else{
+showMsg('✅ Test Save हो गया!','success');
+document.getElementById('tname_input'].value='';
+document.getElementById('ttext').value='';
+loadTests();load();
+}
+}
+
+async function loadTests(){
+const {data}=await db.from('tests').select('*').eq('active',true).order('created_at',{ascending:false});
+const list=document.getElementById('testsList');
+if(!data||!data.length){list.innerHTML='<p style="color:#666;text-align:center">कोई Test नहीं</p>';return}
+list.innerHTML=data.map(t=>`
+<div class="test-item">
+<div style="font-weight:bold;color:#1a237e">${t.name}</div>
+<div>${t.total_words} Words | Max: ${t.max_marks} | Pass: ${t.pass_marks}</div>
+</div>`).join('');
+}
+</script>
+</body>
+</html>
