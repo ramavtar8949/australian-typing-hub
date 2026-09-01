@@ -64,7 +64,6 @@ textarea{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-si
 </head>
 <body>
 <div class="main">
-<!-- Home Page -->
 <div id="homePage">
 <div class="logo"><div class="ath-circle"><span class="ath-text">ATH</span></div></div>
 <h1 class="title">🚀 Australian Typing Hub</h1>
@@ -102,7 +101,6 @@ textarea{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-si
 <button class="btn btn-red" onclick="showAdminLogin()">🔐 Admin Panel</button>
 </div>
 
-<!-- Admin Login Box -->
 <div id="adminLoginBox">
 <h2 style="text-align:center;color:#1a237e;margin-bottom:10px">🔐 Admin Login</h2>
 <div id="loginMsg"></div>
@@ -112,7 +110,6 @@ textarea{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-si
 <button class="btn" onclick="cancelAdminLogin()" style="background:#666">❌ Back to Home</button>
 </div>
 
-<!-- Test Execution Area -->
 <div id="testArea">
 <div id="timerBar">
 <span id="testTitleMini">LDC Test</span>
@@ -125,7 +122,6 @@ textarea{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-si
 <button class="btn btn-red" onclick="submit()" style="margin-top:10px">✅ Submit Test</button>
 </div>
 
-<!-- Result Page -->
 <div id="resultPage">
 <div id="captureArea">
 <div class="scorecard">
@@ -153,7 +149,6 @@ textarea{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-si
 <button class="btn btn-red" onclick="location.reload()" style="background:#666">🔄 नया Test दें</button>
 </div>
 
-<!-- Admin Panel -->
 <div id="adminPanel">
 <h2 style="text-align:center">🔐 Admin Panel - ATH</h2>
 <div id="msg"></div>
@@ -174,9 +169,15 @@ textarea{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-si
 
 <script>
 const ADMIN_PASS='Ram@894907';
-let tests = JSON.parse(localStorage.getItem('ath_tests')) || [
-  {name: "Sample LDC Test 2026", text: "Rajasthan High Court LDC exam preparation requires high speed and accuracy in typing. Australian Typing Hub provides the best platform for daily practice. Candidates must practice regularly to achieve top rank in the examination. Hard work and dedication are the keys to success.", max_marks: 25, pass_marks: 10}
-];
+
+// ऑटो-फिक्स: अगर लोकल स्टोरेज खाली है तो सैंपल टेस्ट अपने आप लोड हो जाएगा
+if (!localStorage.getItem('ath_tests') || JSON.parse(localStorage.getItem('ath_tests')).length === 0) {
+  localStorage.setItem('ath_tests', JSON.stringify([
+    {name: "Sample LDC Test 2026", text: "Rajasthan High Court LDC exam preparation requires high speed and accuracy in typing. Australian Typing Hub provides the best platform for daily practice. Candidates must practice regularly to achieve top rank in the examination. Hard work and dedication are the keys to success.", max_marks: 25, pass_marks: 10}
+  ]));
+}
+
+let tests = JSON.parse(localStorage.getItem('ath_tests')) || [];
 let cur=null,time=0,timer=null,startTime=null,selectedMinutes=10;
 let wordsArray=[],typedWords=[],currentWordIndex=0,currentInputChars="";
 let selectedFontSize="16px", lastResultText='';
@@ -413,8 +414,8 @@ if(!name||!text){showMsg('❌ नाम और Passage जरूरी है','
 tests.unshift({name, text, max_marks: max, pass_marks: pass});
 localStorage.setItem('ath_tests', JSON.stringify(tests));
 showMsg('✅ Test Save हो गया!','success');
-document.getElementById('tname_input'].value='';
-document.getElementById('ttext'].value='';
+document.getElementById('tname_input').value='';
+document.getElementById('ttext').value='';
 loadTests();
 load();
 }
@@ -438,5 +439,4 @@ load();
 }
 </script>
 </body>
-  </html>
-  
+</html>
