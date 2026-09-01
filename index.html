@@ -74,7 +74,7 @@ textarea{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-si
 <div><b>संस्थापक: रामावतार महावर ऑस्ट्रेलियन</b></div>
 </div>
 <div class="green-box">🎁 <b>100% FREE Daily LDC Typing Test!</b> स्क्रीन पर सीधे टाइप करें, कोई अलग बॉक्स नहीं!</div>
-<div id="statusMsg" class="loading">Test लोड हो रहा है... कृपया Admin Panel से Test जोड़ें यदि यहाँ न दिखे।</div>
+<div id="statusMsg" class="loading">Test लोड हो रहा है...</div>
 
 <label>अपना पूरा नाम दर्ज करें:</label>
 <input id="uname" placeholder="Ramavtar">
@@ -102,7 +102,7 @@ textarea{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-si
 <button class="btn btn-red" onclick="showAdminLogin()">🔐 Admin Panel</button>
 </div>
 
-<!-- Built-in Admin Login Box (Guaranteed mobile access) -->
+<!-- Admin Login Box -->
 <div id="adminLoginBox">
 <h2 style="text-align:center;color:#1a237e;margin-bottom:10px">🔐 Admin Login</h2>
 <div id="loginMsg"></div>
@@ -157,22 +157,13 @@ textarea{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-si
 <div id="adminPanel">
 <h2 style="text-align:center">🔐 Admin Panel - ATH</h2>
 <div id="msg"></div>
-
-<button class="btn btn-blue" onclick="openAllResults()" style="margin-bottom:15px">📊 सभी बच्चों के Results & Ranks देखें</button>
-
-<div id="adminResultsSection" style="display:none;margin-bottom:15px;background:#f5f5f5;padding:10px;border-radius:10px">
-<h3 style="color:#1a237e;margin-bottom:8px;font-size:15px">🏆 Students Leaderboard & Results</h3>
-<div id="allResultsList" style="max-height:250px;overflow-y:auto"></div>
-<button class="btn" onclick="document.getElementById('adminResultsSection').style.display='none'" style="background:#666;font-size:12px;padding:8px">❌ Results छुपाएं</button>
-</div>
-
 <label>Test का नाम:</label>
 <input id="tname_input" placeholder="3 September LDC Test">
-<label>Passage Text (जितना मर्जी बड़ा):</label>
+<label>Passage Text:</label>
 <textarea id="ttext" placeholder="पूरा Passage यहाँ Paste करें..." rows="6"></textarea>
 <label>Max Marks:</label>
 <input id="tmax" type="number" value="25">
-<label>Pass Marks (Passing Criteria):</label>
+<label>Pass Marks:</label>
 <input id="tpass" type="number" value="10">
 <button class="btn btn-green" onclick="saveTest()">✅ Test Save करें</button>
 <button class="btn" onclick="closeAdmin()" style="background:#666">❌ Close Panel</button>
@@ -181,17 +172,16 @@ textarea{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-si
 </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const ADMIN_PASS='Ram@894907';
-const db=supabase.createClient('https://lrxqhrznpqcagrrknolk.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxyeHFocnpucHFjYWdycmtub2xrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxODc5NTgsImV4cCI6MjEwMzc2Mzk1OH0.Zms5LDsEhEoz9mY33HPUsn1MPj3tIAvmFW1USnPBqaI');
-let tests=[],cur=null,time=0,timer=null,startTime=null,selectedMinutes=10;
+let tests = JSON.parse(localStorage.getItem('ath_tests')) || [
+  {name: "Sample LDC Test 2026", text: "Rajasthan High Court LDC exam preparation requires high speed and accuracy in typing. Australian Typing Hub provides the best platform for daily practice. Candidates must practice regularly to achieve top rank in the examination. Hard work and dedication are the keys to success.", max_marks: 25, pass_marks: 10}
+];
+let cur=null,time=0,timer=null,startTime=null,selectedMinutes=10;
 let wordsArray=[],typedWords=[],currentWordIndex=0,currentInputChars="";
 let selectedFontSize="16px", lastResultText='';
 
-async function load(){
-const {data, error}=await db.from('tests').select('*').eq('active',true).order('created_at',{ascending:false});
-tests=data||[];
+function load(){
 const statusEl=document.getElementById('statusMsg');
 if(tests.length > 0){
 statusEl.style.display='none';
@@ -199,6 +189,7 @@ statusEl.style.display='none';
 statusEl.innerText='⚠️ कोई Test उपलब्ध नहीं है! कृपया Admin Panel से Test जोड़ें।';
 statusEl.style.color='#c62828';
 }
+loadTests();
 }
 load();
 
@@ -230,7 +221,7 @@ setTimeout(()=>loginMsg.innerText='',2000);
 function startTest(){
 const name=document.getElementById('uname').value.trim();
 if(!name){alert('कृपया अपना पूरा नाम दर्ज करें');return}
-if(!tests.length){alert('कोई Active Test उपलब्ध नहीं है। कृपया Admin Panel से टेस्ट जोड़ें।');return}
+if(!tests.length){alert('कोई Active Test उपलब्ध नहीं है।');return}
 cur=tests[0];
 selectedMinutes=parseInt(document.getElementById('timeSelect').value);
 selectedFontSize=document.getElementById('fontSizeSelect').value;
@@ -311,7 +302,7 @@ const m=Math.floor(time/60),s=time%60;
 document.getElementById('timer').innerText=`⏱️ ${m}:${s.toString().padStart(2,'0')}`;
 }
 
-async function submit(){
+function submit(){
 clearInterval(timer);
 document.removeEventListener('click',focusHiddenInput);
 const hidden=document.getElementById('hiddenInput');
@@ -332,7 +323,6 @@ if(i<wordsArray.length && typedWords[i]===wordsArray[i]) correctWordsCount++;
 }
 
 const accuracy=totalTypedCount>0?Math.round((correctWordsCount/totalTypedCount)*100):100;
-
 const maxMarks=cur.max_marks;
 const passMarks=cur.pass_marks;
 const totalPassageWords=wordsArray.length;
@@ -344,17 +334,6 @@ if(marks>maxMarks) marks=maxMarks;
 const passed=marks>=passMarks;
 const mins=Math.floor(timeTakenSec/60),secs=timeTakenSec%60;
 const candidateName=document.getElementById('uname').value;
-
-await db.from('results').insert([{
-user_name:candidateName,
-test_name:cur.name,
-wpm:wpm,
-accuracy:accuracy,
-words:totalTypedCount,
-marks:parseFloat(marks.toFixed(2)),
-passed:passed,
-time_taken:timeTakenSec
-}]);
 
 document.getElementById('testArea').style.display='none';
 document.getElementById('resultPage').style.display='block';
@@ -382,7 +361,7 @@ let userW=typedWords[i]||"";
 if(userW===expected){
 compareHTML+=`<span class="ok-char">${escapeHtml(userW)}</span> `;
 }else{
-compareHTML+=`<span class="err-char" title="Expected: '${expected}', Typed: '${userW}'">${escapeHtml(userW||'___')}</span> `;
+compareHTML+=`<span class="err-char">${escapeHtml(userW||'___')}</span> `;
 }
 }
 document.getElementById('compareContainer').innerHTML=compareHTML;
@@ -412,31 +391,8 @@ function shareTelegram(){
 window.open(`https://t.me/share/url?url=${encodeURIComponent('https://t.me/ldctop100rank2026')}&text=${encodeURIComponent(lastResultText)}`,'_blank');
 }
 
-async function openAllResults(){
-const section=document.getElementById('adminResultsSection');
-section.style.display='block';
-const list=document.getElementById('allResultsList');
-list.innerHTML='<p style="text-align:center;color:#666">Loading results & ranks...</p>';
-
-const, {data,error}=await db.from('results').select('*').order('marks',{ascending:false}).limit(100);
-if(error || !data || !data.length){
-list.innerHTML='<p style="text-align:center;color:#666">कोई रिजल्ट उपलब्ध नहीं है।</p>';
-return;
-}
-
-list.innerHTML=data.map((r, index)=>`
-<div class="test-item" style="border-left:4px solid ${r.passed?'#4CAF50':'#f44336'}">
-<b>#${index+1} 👤 ${r.user_name}</b> (${r.test_name})<br>
-⚡ Speed: <b>${r.wpm} WPM</b> | 🎯 Accuracy: <b>${r.accuracy}%</b><br>
-🏆 Marks: <span style="color:#1976d2;font-weight:bold">${r.marks}</span> | Status: <span class="${r.passed?'status-pass':'status-fail'}">${r.passed?'PASS':'FAIL'}</span><br>
-<span style="font-size:10px;color:#888">🕒 ${new Date(r.created_at).toLocaleString()}</span>
-</div>
-`).join('');
-}
-
 function closeAdmin(){
 document.getElementById('adminPanel').style.display='none';
-document.getElementById('adminResultsSection').style.display='none';
 document.getElementById('homePage').style.display='block';
 }
 
@@ -447,36 +403,40 @@ m.innerText=t;
 setTimeout(()=>m.innerText='',3000);
 }
 
-async function saveTest(){
-const name=document.getElementById('tname_input'].value.trim();
-const text=document.getElementById('ttext'].value.trim();
-const max=parseFloat(document.getElementById('tmax'].value)||25;
-const pass=parseFloat(document.getElementById('tpass'].value)||10;
+function saveTest(){
+const name=document.getElementById('tname_input').value.trim();
+const text=document.getElementById('ttext').value.trim();
+const max=parseFloat(document.getElementById('tmax').value)||25;
+const pass=parseFloat(document.getElementById('tpass').value)||10;
 if(!name||!text){showMsg('❌ नाम और Passage जरूरी है','error');return}
-showMsg('⏳ Saving...','info');
-const words=text.split(/\s+/).filter(w=>w).length;
-const {error}=await db.from('tests').insert([{
-name,text,minutes:10,total_words:words,max_marks:max,pass_marks:pass,active:true
-}]);
-if(error){showMsg('❌ '+error.message,'error')}
-else{
+
+tests.unshift({name, text, max_marks: max, pass_marks: pass});
+localStorage.setItem('ath_tests', JSON.stringify(tests));
 showMsg('✅ Test Save हो गया!','success');
 document.getElementById('tname_input'].value='';
 document.getElementById('ttext'].value='';
-loadTests();load();
-}
+loadTests();
+load();
 }
 
-async function loadTests(){
-const {data}=await db.from('tests').select('*').eq('active',true).order('created_at',{ascending:false});
+function loadTests(){
 const list=document.getElementById('testsList');
-if(!data||!data.length){list.innerHTML='<p style="color:#666;text-align:center">कोई Test नहीं</p>';return}
-list.innerHTML=data.map(t=>`
+if(!tests||!tests.length){list.innerHTML='<p style="color:#666;text-align:center">कोई Test नहीं</p>';return}
+list.innerHTML=tests.map((t, index)=>`
 <div class="test-item">
 <div style="font-weight:bold;color:#1a237e">${t.name}</div>
-<div>${t.total_words} Words | Max: ${t.max_marks} | Pass: ${t.pass_marks}</div>
+<div>Max Marks: ${t.max_marks} | Pass: ${t.pass_marks}</div>
+<button class="btn btn-red" style="padding:4px;font-size:11px;margin-top:4px" onclick="deleteTest(${index})">🗑️ डिलीट करें</button>
 </div>`).join('');
+}
+
+function deleteTest(index){
+tests.splice(index, 1);
+localStorage.setItem('ath_tests', JSON.stringify(tests));
+loadTests();
+load();
 }
 </script>
 </body>
-</html>
+  </html>
+  
