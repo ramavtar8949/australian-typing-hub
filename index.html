@@ -26,11 +26,12 @@ label{font-weight:600;color:#333;font-size:14px}
 #homePage,#adminLoginBox,#testArea,#resultPage,#adminPanel{display:none}
 
 #timerBar{position:sticky;top:0;background:#1a237e;color:#fff;padding:10px;border-radius:8px;font-size:18px;font-weight:bold;text-align:center;z-index:100;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
-#typingBoxContainer{background:#f8f9fa;padding:15px;border-radius:10px;border:2px solid #4CAF50;max-height:350px;overflow-y:auto;margin:10px 0;line-height:2}
+#typingBoxContainer{background:#f8f9fa;padding:15px;border-radius:10px;border:2px solid #4CAF50;height:220px;overflow-y:auto;margin:10px 0;line-height:2}
 .t-word{display:inline-block;padding:0 3px;margin:2px;border-radius:4px;font-family:monospace}
 .t-word.current{background:#e3f2fd;border-bottom:2px solid #1976d2}
 .t-word.correct{color:#2e7d32;font-weight:bold}
 .t-word.incorrect{color:#c62828;background:#ffebee;font-weight:bold;text-decoration:underline}
+.t-word.typed-neutral{color:#555;background:#f1f1f1}
 #hiddenInput{position:absolute;opacity:0;pointer-events:none;height:0;width:0}
 
 .scorecard{border:3px solid #1a237e;border-radius:10px;padding:0;overflow:hidden;background:#fff}
@@ -81,15 +82,8 @@ textarea{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-si
 <label>अपना पूरा नाम दर्ज करें:</label>
 <input id="uname" placeholder="Ramavtar">
 
-<label>Test समय चुनें:</label>
-<select id="timeSelect">
-<option value="1">1 Minute</option>
-<option value="2">2 Minutes</option>
-<option value="5">5 Minutes</option>
-<option value="10" selected>10 Minutes</option>
-<option value="15">15 Minutes</option>
-<option value="30">30 Minutes</option>
-</select>
+<label>रोज़ाना के Tests की सूची (Select Test):</label>
+<select id="homeTestSelect"></select>
 
 <label>फॉन्ट साइज़ (Font Size) चुनें:</label>
 <select id="fontSizeSelect">
@@ -163,15 +157,32 @@ textarea{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-si
 <label>Test का नाम:</label>
 <input id="tname_input" placeholder="3 September LDC Test">
 <label>Passage Text:</label>
-<textarea id="ttext" placeholder="पूरा Passage यहाँ Paste करें..." rows="6"></textarea>
+<textarea id="ttext" placeholder="पूरा Passage यहाँ Paste करें..." rows="5"></textarea>
+<label>Test का समय (मिनट में):</label>
+<select id="tmin_input">
+<option value="1">1 Minute</option>
+<option value="2">2 Minutes</option>
+<option value="5" selected>5 Minutes</option>
+<option value="10">10 Minutes</option>
+<option value="15">15 Minutes</option>
+<option value="30">30 Minutes</option>
+</select>
 <label>Max Marks:</label>
 <input id="tmax" type="number" value="25">
 <label>Pass Marks:</label>
 <input id="tpass" type="number" value="10">
-<button class="btn btn-green" onclick="saveTest()">✅ Test Save करें</button>
+<button class="btn btn-green" onclick="saveTest()">✅ नया Test Save करें</button>
+<button class="btn btn-blue" onclick="showResultsHistory()" style="margin-top:6px">👥 Students Results देखें</button>
 <button class="btn" onclick="closeAdmin()" style="background:#666">❌ Close Panel</button>
-<h3 style="margin-top:15px;color:#1a237e">📋 Active Tests</h3>
-<div id="testsList" style="max-height:200px;overflow-y:auto"></div>
+
+<h3 style="margin-top:15px;color:#1a237e">📋 Active Tests List</h3>
+<div id="testsList" style="max-height:130px;overflow-y:auto"></div>
+
+<div id="resultsHistoryBox" style="margin-top:15px;display:none">
+<h3 style="color:#1a237e">📊 Students Test History</h3>
+<button class="btn btn-green" onclick="downloadResultsCSV()" style="font-size:13px;padding:10px;margin-bottom:8px">📥 Download Results CSV (Excel)</button>
+<div id="resultsListContainer" style="max-height:160px;overflow-y:auto;background:#f5f5f5;padding:8px;border-radius:6px"></div>
+</div>
 </div>
 
 </div>
@@ -184,15 +195,27 @@ if(tests.length === 0) {
   tests = [{
     name: "Sample LDC Test 2026", 
     text: "Rajasthan High Court LDC exam preparation requires high speed and accuracy in typing. Australian Typing Hub provides the best platform for daily practice. Candidates must practice regularly to achieve top rank in the examination. Hard work and dedication are the keys to success.", 
+    duration: 5,
     max_marks: 25, 
     pass_marks: 10
   }];
   localStorage.setItem('ath_tests', JSON.stringify(tests));
 }
 
-let cur = null, time = 0, timer = null, startTime = null, selectedMinutes = 10;
+let resultsHistory = JSON.parse(localStorage.getItem('ath_results_history')) || [];
+let cur = null, time = 0, timer = null, startTime = null, testDurationMinutes = 5;
 let wordsArray = [], typedWords = [], currentWordIndex = 0, currentInputChars = "";
 let selectedFontSize = "16px", lastResultText = '';
+
+window.onload = function() {
+  populateHomeTestDropdown();
+};
+
+function populateHomeTestDropdown(){
+  tests = JSON.parse(localStorage.getItem('ath_tests')) || tests;
+  const select = document.getElementById('homeTestSelect');
+  select.innerHTML = tests.map((t, index) => `<option value="${index}">${t.name} (${t.duration} Min)</option>`).join('');
+}
 
 function showAdminLogin(){
   document.getElementById('homePage').style.display = 'none';
@@ -212,6 +235,7 @@ function verifyAdminPass(){
     document.getElementById('adminLoginBox').style.display = 'none';
     document.getElementById('adminPanel').style.display = 'block';
     loadTests();
+    document.getElementById('resultsHistoryBox').style.display = 'none';
   } else {
     loginMsg.className = 'error';
     loginMsg.innerText = '❌ गलत पासवर्ड!';
@@ -225,8 +249,9 @@ function startTest(){
   tests = JSON.parse(localStorage.getItem('ath_tests')) || tests;
   if(!tests.length){ alert('कोई Active Test उपलब्ध नहीं है।'); return; }
   
-  cur = tests[0];
-  selectedMinutes = parseInt(document.getElementById('timeSelect').value);
+  const selectedIndex = document.getElementById('homeTestSelect').value;
+  cur = tests[selectedIndex] || tests[0];
+  testDurationMinutes = parseInt(cur.duration) || 5;
   selectedFontSize = document.getElementById('fontSizeSelect').value;
 
   document.getElementById('homePage').style.display = 'none';
@@ -240,7 +265,7 @@ function startTest(){
 
   renderPassageHTML();
 
-  time = selectedMinutes * 60;
+  time = testDurationMinutes * 60;
   startTime = Date.now();
   updateTimer();
   timer = setInterval(() => {
@@ -270,7 +295,7 @@ function renderPassageHTML(){
     if(i === currentWordIndex) cls += " current";
     if(i < typedWords.length){
       if(typedWords[i] === wordsArray[i]) cls += " correct";
-      else cls += " incorrect";
+      else cls += " typed-neutral";
     }
     let displayWord = wordsArray[i];
     if(i === currentWordIndex && currentInputChars.length > 0){
@@ -279,11 +304,6 @@ function renderPassageHTML(){
     html += `<span class="${cls}" id="w-${i}">${displayWord}</span> `;
   }
   container.innerHTML = html;
-
-  const activeEl = document.getElementById(`w-${currentWordIndex}`);
-  if(activeEl){
-    activeEl.scrollIntoView({behavior: 'smooth', block: 'center'});
-  }
 }
 
 function handleTypingInput(e){
@@ -322,13 +342,14 @@ function submitTest(){
   const timeMin = (Date.now() - startTime) / 60000;
   const timeTakenSec = Math.round((Date.now() - startTime) / 1000);
   const totalTypedCount = typedWords.length;
-  const wpm = timeMin > 0 ? Math.round(totalTypedCount / timeMin) : 0;
+  const grossWpm = timeMin > 0 ? Math.round(totalTypedCount / timeMin) : 0;
 
   let correctWordsCount = 0;
   for(let i = 0; i < typedWords.length; i++){
     if(i < wordsArray.length && typedWords[i] === wordsArray[i]) correctWordsCount++;
   }
 
+  const netWpm = timeMin > 0 ? Math.round(correctWordsCount / timeMin) : 0;
   const accuracy = totalTypedCount > 0 ? Math.round((correctWordsCount / totalTypedCount) * 100) : 100;
   const maxMarks = cur.max_marks;
   const passMarks = cur.pass_marks;
@@ -342,11 +363,25 @@ function submitTest(){
   const mins = Math.floor(timeTakenSec / 60), secs = timeTakenSec % 60;
   const candidateName = document.getElementById('uname').value;
 
+  const now = new Date();
+  const dateStr = `${now.getDate().toString().padStart(2,'0')}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getFullYear()}, ${now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true})}`;
+
+  resultsHistory = JSON.parse(localStorage.getItem('ath_results_history')) || [];
+  resultsHistory.unshift({
+    name: candidateName,
+    testName: cur.name,
+    date: dateStr,
+    netWpm: netWpm,
+    grossWpm: grossWpm,
+    accuracy: accuracy,
+    marks: marks.toFixed(2),
+    status: passed ? 'PASS' : 'FAIL'
+  });
+  localStorage.setItem('ath_results_history', JSON.stringify(resultsHistory));
+
   document.getElementById('testArea').style.display = 'none';
   document.getElementById('resultPage').style.display = 'block';
   document.getElementById('rName').innerText = candidateName;
-  const now = new Date();
-  const dateStr = `${now.getDate().toString().padStart(2,'0')}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getFullYear()}, ${now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true})}`;
   document.getElementById('rDate').innerText = dateStr;
 
   document.getElementById('rTable').innerHTML = `
@@ -357,7 +392,8 @@ function submitTest(){
     <tr><td>Final Status</td><td class="${passed?'status-pass':'status-fail'}">${passed?'QUALIFIED (PASS)':'NOT QUALIFIED (FAIL)'}</td></tr>
     <tr><td>Total Words Typed</td><td>${totalTypedCount}</td></tr>
     <tr><td>Correct Words</td><td>${correctWordsCount}</td></tr>
-    <tr><td>Gross Speed</td><td>${wpm} WPM</td></tr>
+    <tr><td>Gross Speed</td><td>${grossWpm} WPM</td></tr>
+    <tr><td>Net Speed</td><td><b>${netWpm} WPM</b></td></tr>
     <tr><td>Accuracy</td><td>${accuracy}%</td></tr>
   `;
 
@@ -373,7 +409,7 @@ function submitTest(){
   }
   document.getElementById('compareContainer').innerHTML = compareHTML;
 
-  lastResultText = `🚀 Australian Typing Hub - LDC 2026\n👤 Candidate: ${candidateName}\n📊 Test: ${cur.name}\n⚡ Speed: ${wpm} WPM\n🎯 Accuracy: ${accuracy}%\n🏆 Marks: ${marks.toFixed(2)} / ${maxMarks}\n📌 Status: ${passed?'PASS':'FAIL'}\n\nJoin Free Daily Portal: https://t.me/ldctop100rank2026`;
+  lastResultText = `🚀 Australian Typing Hub - LDC 2026\n👤 Candidate: ${candidateName}\n📊 Test: ${cur.name}\n⚡ Net Speed: ${netWpm} WPM (Gross: ${grossWpm} WPM)\n🎯 Accuracy: ${accuracy}%\n🏆 Marks: ${marks.toFixed(2)} / ${maxMarks}\n📌 Status: ${passed?'PASS':'FAIL'}\n\nJoin Free Daily Portal: https://t.me/ldctop100rank2026`;
 }
 
 function escapeHtml(text){
@@ -401,6 +437,7 @@ function shareTelegram(){
 function closeAdmin(){
   document.getElementById('adminPanel').style.display = 'none';
   document.getElementById('homePage').style.display = 'block';
+  populateHomeTestDropdown();
 }
 
 function showMsg(t, c){
@@ -413,40 +450,4 @@ function showMsg(t, c){
 function saveTest(){
   const name = document.getElementById('tname_input').value.trim();
   const text = document.getElementById('ttext').value.trim();
-  const max = parseFloat(document.getElementById('tmax').value) || 25;
-  const pass = parseFloat(document.getElementById('tpass').value) || 10;
-  if(!name || !text){ showMsg('❌ नाम और Passage जरूरी है', 'error'); return; }
-
-  tests = JSON.parse(localStorage.getItem('ath_tests')) || [];
-  tests.unshift({name, text, max_marks: max, pass_marks: pass});
-  localStorage.setItem('ath_tests', JSON.stringify(tests));
-  showMsg('✅ Test Save हो गया!', 'success');
-  document.getElementById('tname_input').value = '';
-  document.getElementById('ttext').value = '';
-  loadTests();
-}
-
-function loadTests(){
-  tests = JSON.parse(localStorage.getItem('ath_tests')) || [];
-  const list = document.getElementById('testsList');
-  if(!tests.length){ 
-    list.innerHTML = '<p style="color:#666;text-align:center">कोई Test नहीं</p>'; 
-    return; 
-  }
-  list.innerHTML = tests.map((t, index) => `
-    <div class="test-item">
-      <div style="font-weight:bold;color:#1a237e">${t.name}</div>
-      <div>Max Marks: ${t.max_marks} | Pass: ${t.pass_marks}</div>
-      <button class="btn btn-red" style="padding:4px;font-size:11px;margin-top:4px" onclick="deleteTest(${index})">🗑️ डिलीट करें</button>
-    </div>`).join('');
-}
-
-function deleteTest(index){
-  tests = JSON.parse(localStorage.getItem('ath_tests')) || [];
-  tests.splice(index, 1);
-  localStorage.setItem('ath_tests', JSON.stringify(tests));
-  loadTests();
-}
-</script>
-</body>
-</html>
+  const duration = parseInt(document.getElementById('tmin_input').value)
