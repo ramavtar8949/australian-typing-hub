@@ -22,8 +22,8 @@ label{font-weight:600;color:#333;font-size:14px}
 .btn-blue{background:linear-gradient(90deg,#2196F3,#1976D2);color:#fff}
 .btn-red{background:linear-gradient(90deg,#f44336,#d32f2f);color:#fff}
 .btn-tg{background:linear-gradient(90deg,#0088cc,#006699);color:#fff}
-.loading{text-align:center;color:#FF9800;font-weight:600;margin:8px 0}
-#testArea,#resultPage,#adminLoginBox,#adminPanel{display:none}
+
+#homePage,#adminLoginBox,#testArea,#resultPage,#adminPanel{display:none}
 
 #timerBar{position:sticky;top:0;background:#1a237e;color:#fff;padding:10px;border-radius:8px;font-size:18px;font-weight:bold;text-align:center;z-index:100;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
 #typingBoxContainer{background:#f8f9fa;padding:15px;border-radius:10px;border:2px solid #4CAF50;max-height:350px;overflow-y:auto;margin:10px 0;line-height:2}
@@ -59,12 +59,16 @@ label{font-weight:600;color:#333;font-size:14px}
 .error{background:#ffebee;color:#c62828}
 textarea{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-size:14px;margin:6px 0;font-family:'Segoe UI',sans-serif}
 .test-item{background:#f5f5f5;padding:10px;border-radius:6px;margin:6px 0;font-size:12px;text-align:left}
+.hidden-admin-link{text-align:center;margin-top:15px;font-size:11px;color:#888;cursor:pointer}
+.hidden-admin-link:hover{color:#1a237e;text-decoration:underline}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 <div class="main">
-<div id="homePage">
+
+<!-- Home Page -->
+<div id="homePage" style="display:block;">
 <div class="logo"><div class="ath-circle"><span class="ath-text">ATH</span></div></div>
 <h1 class="title">🚀 Australian Typing Hub</h1>
 <div class="badge">🔥 Mission LDC 2026 – Exam Mode Typing 🔥</div>
@@ -73,7 +77,6 @@ textarea{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-si
 <div><b>संस्थापक: रामावतार महावर ऑस्ट्रेलियन</b></div>
 </div>
 <div class="green-box">🎁 <b>100% FREE Daily LDC Typing Test!</b> स्क्रीन पर सीधे टाइप करें, कोई अलग बॉक्स नहीं!</div>
-<div id="statusMsg" class="loading">Test लोड हो रहा है...</div>
 
 <label>अपना पूरा नाम दर्ज करें:</label>
 <input id="uname" placeholder="Ramavtar">
@@ -98,9 +101,11 @@ textarea{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-si
 
 <button class="btn btn-green" onclick="startTest()">🚀 Start Exam Mode Test</button>
 <button class="btn btn-tg" onclick="window.open('https://t.me/ldctop100rank2026','_blank')">📢 Telegram Group Join करें</button>
-<button class="btn btn-red" onclick="showAdminLogin()">🔐 Admin Panel</button>
+
+<div class="hidden-admin-link" onclick="showAdminLogin()">🔒 Admin Portal Login</div>
 </div>
 
+<!-- Admin Login Box -->
 <div id="adminLoginBox">
 <h2 style="text-align:center;color:#1a237e;margin-bottom:10px">🔐 Admin Login</h2>
 <div id="loginMsg"></div>
@@ -110,6 +115,7 @@ textarea{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-si
 <button class="btn" onclick="cancelAdminLogin()" style="background:#666">❌ Back to Home</button>
 </div>
 
+<!-- Test Execution Area -->
 <div id="testArea">
 <div id="timerBar">
 <span id="testTitleMini">LDC Test</span>
@@ -119,9 +125,10 @@ textarea{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-si
 <div id="renderPassage"></div>
 </div>
 <input type="text" id="hiddenInput" autocomplete="off" autocapitalize="off" spellcheck="false">
-<button class="btn btn-red" onclick="submit()" style="margin-top:10px">✅ Submit Test</button>
+<button class="btn btn-red" onclick="submitTest()" style="margin-top:10px">✅ Submit Test</button>
 </div>
 
+<!-- Result Page -->
 <div id="resultPage">
 <div id="captureArea">
 <div class="scorecard">
@@ -149,8 +156,9 @@ textarea{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-si
 <button class="btn btn-red" onclick="location.reload()" style="background:#666">🔄 नया Test दें</button>
 </div>
 
+<!-- Admin Panel -->
 <div id="adminPanel">
-<h2 style="text-align:center">🔐 Admin Panel - ATH</h2>
+<h2 style="text-align:center;color:#1a237e">🔐 Admin Panel - ATH</h2>
 <div id="msg"></div>
 <label>Test का नाम:</label>
 <input id="tname_input" placeholder="3 September LDC Test">
@@ -165,277 +173,279 @@ textarea{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-si
 <h3 style="margin-top:15px;color:#1a237e">📋 Active Tests</h3>
 <div id="testsList" style="max-height:200px;overflow-y:auto"></div>
 </div>
+
 </div>
 
 <script>
-const ADMIN_PASS='Ram@894907';
-
-// ऑटो-फिक्स: अगर लोकल स्टोरेज खाली है तो सैंपल टेस्ट अपने आप लोड हो जाएगा
-if (!localStorage.getItem('ath_tests') || JSON.parse(localStorage.getItem('ath_tests')).length === 0) {
-  localStorage.setItem('ath_tests', JSON.stringify([
-    {name: "Sample LDC Test 2026", text: "Rajasthan High Court LDC exam preparation requires high speed and accuracy in typing. Australian Typing Hub provides the best platform for daily practice. Candidates must practice regularly to achieve top rank in the examination. Hard work and dedication are the keys to success.", max_marks: 25, pass_marks: 10}
-  ]));
-}
+const ADMIN_PASS = 'Ram@894907';
 
 let tests = JSON.parse(localStorage.getItem('ath_tests')) || [];
-let cur=null,time=0,timer=null,startTime=null,selectedMinutes=10;
-let wordsArray=[],typedWords=[],currentWordIndex=0,currentInputChars="";
-let selectedFontSize="16px", lastResultText='';
+if(tests.length === 0) {
+  tests = [{
+    name: "Sample LDC Test 2026", 
+    text: "Rajasthan High Court LDC exam preparation requires high speed and accuracy in typing. Australian Typing Hub provides the best platform for daily practice. Candidates must practice regularly to achieve top rank in the examination. Hard work and dedication are the keys to success.", 
+    max_marks: 25, 
+    pass_marks: 10
+  }];
+  localStorage.setItem('ath_tests', JSON.stringify(tests));
+}
 
-function load(){
-const statusEl=document.getElementById('statusMsg');
-if(tests.length > 0){
-statusEl.style.display='none';
-}else{
-statusEl.innerText='⚠️ कोई Test उपलब्ध नहीं है! कृपया Admin Panel से Test जोड़ें।';
-statusEl.style.color='#c62828';
-}
-loadTests();
-}
-load();
+let cur = null, time = 0, timer = null, startTime = null, selectedMinutes = 10;
+let wordsArray = [], typedWords = [], currentWordIndex = 0, currentInputChars = "";
+let selectedFontSize = "16px", lastResultText = '';
 
 function showAdminLogin(){
-document.getElementById('homePage').style.display='none';
-document.getElementById('adminLoginBox').style.display='block';
-document.getElementById('adminPassInput').value='';
+  document.getElementById('homePage').style.display = 'none';
+  document.getElementById('adminLoginBox').style.display = 'block';
+  document.getElementById('adminPassInput').value = '';
 }
 
 function cancelAdminLogin(){
-document.getElementById('adminLoginBox').style.display='none';
-document.getElementById('homePage').style.display='block';
+  document.getElementById('adminLoginBox').style.display = 'none';
+  document.getElementById('homePage').style.display = 'block';
 }
 
 function verifyAdminPass(){
-const p=document.getElementById('adminPassInput').value;
-const loginMsg=document.getElementById('loginMsg');
-if(p===ADMIN_PASS){
-document.getElementById('adminLoginBox').style.display='none';
-document.getElementById('adminPanel').style.display='block';
-loadTests();
-}else{
-loginMsg.className='error';
-loginMsg.innerText='❌ गलत पासवर्ड!';
-setTimeout(()=>loginMsg.innerText='',2000);
-}
+  const p = document.getElementById('adminPassInput').value;
+  const loginMsg = document.getElementById('loginMsg');
+  if(p === ADMIN_PASS){
+    document.getElementById('adminLoginBox').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    loadTests();
+  } else {
+    loginMsg.className = 'error';
+    loginMsg.innerText = '❌ गलत पासवर्ड!';
+    setTimeout(() => loginMsg.innerText = '', 2000);
+  }
 }
 
 function startTest(){
-const name=document.getElementById('uname').value.trim();
-if(!name){alert('कृपया अपना पूरा नाम दर्ज करें');return}
-if(!tests.length){alert('कोई Active Test उपलब्ध नहीं है।');return}
-cur=tests[0];
-selectedMinutes=parseInt(document.getElementById('timeSelect').value);
-selectedFontSize=document.getElementById('fontSizeSelect').value;
+  const name = document.getElementById('uname').value.trim();
+  if(!name){ alert('कृपया अपना पूरा नाम दर्ज करें'); return; }
+  tests = JSON.parse(localStorage.getItem('ath_tests')) || tests;
+  if(!tests.length){ alert('कोई Active Test उपलब्ध नहीं है।'); return; }
+  
+  cur = tests[0];
+  selectedMinutes = parseInt(document.getElementById('timeSelect').value);
+  selectedFontSize = document.getElementById('fontSizeSelect').value;
 
-document.getElementById('homePage').style.display='none';
-document.getElementById('testArea').style.display='block';
-document.getElementById('testTitleMini').innerText=cur.name;
+  document.getElementById('homePage').style.display = 'none';
+  document.getElementById('testArea').style.display = 'block';
+  document.getElementById('testTitleMini').innerText = cur.name;
 
-wordsArray=cur.text.trim().split(/\s+/);
-typedWords=[];
-currentWordIndex=0;
-currentInputChars="";
+  wordsArray = cur.text.trim().split(/\s+/);
+  typedWords = [];
+  currentWordIndex = 0;
+  currentInputChars = "";
 
-renderPassageHTML();
+  renderPassageHTML();
 
-time=selectedMinutes*60;
-startTime=Date.now();
-updateTimer();
-timer=setInterval(()=>{time--;updateTimer();if(time<=0)submit()},1000);
+  time = selectedMinutes * 60;
+  startTime = Date.now();
+  updateTimer();
+  timer = setInterval(() => {
+    time--;
+    updateTimer();
+    if(time <= 0) submitTest();
+  }, 1000);
 
-const hidden=document.getElementById('hiddenInput');
-hidden.value="";
-hidden.focus();
-document.addEventListener('click',focusHiddenInput);
-hidden.addEventListener('input',handleTypingInput);
+  const hidden = document.getElementById('hiddenInput');
+  hidden.value = "";
+  hidden.focus();
+  document.addEventListener('click', focusHiddenInput);
+  hidden.addEventListener('input', handleTypingInput);
 }
 
 function focusHiddenInput(){
-const hidden=document.getElementById('hiddenInput');
-if(hidden){hidden.focus();}
+  const hidden = document.getElementById('hiddenInput');
+  if(hidden) hidden.focus();
 }
 
 function renderPassageHTML(){
-const container=document.getElementById('renderPassage');
-container.style.fontSize=selectedFontSize;
-let html="";
-for(let i=0; i<wordsArray.length; i++){
-let cls="t-word";
-if(i===currentWordIndex) cls+=" current";
-if(i<typedWords.length){
-if(typedWords[i]===wordsArray[i]) cls+=" correct";
-else cls+=" incorrect";
-}
-let displayWord = wordsArray[i];
-if(i===currentWordIndex && currentInputChars.length>0){
-displayWord = currentInputChars;
-}
-html+=`<span class="${cls}" id="w-${i}">${displayWord}</span> `;
-}
-container.innerHTML=html;
+  const container = document.getElementById('renderPassage');
+  container.style.fontSize = selectedFontSize;
+  let html = "";
+  for(let i = 0; i < wordsArray.length; i++){
+    let cls = "t-word";
+    if(i === currentWordIndex) cls += " current";
+    if(i < typedWords.length){
+      if(typedWords[i] === wordsArray[i]) cls += " correct";
+      else cls += " incorrect";
+    }
+    let displayWord = wordsArray[i];
+    if(i === currentWordIndex && currentInputChars.length > 0){
+      displayWord = currentInputChars;
+    }
+    html += `<span class="${cls}" id="w-${i}">${displayWord}</span> `;
+  }
+  container.innerHTML = html;
 
-const activeEl=document.getElementById(`w-${currentWordIndex}`);
-if(activeEl){
-activeEl.scrollIntoView({behavior:'smooth', block:'center'});
-}
+  const activeEl = document.getElementById(`w-${currentWordIndex}`);
+  if(activeEl){
+    activeEl.scrollIntoView({behavior: 'smooth', block: 'center'});
+  }
 }
 
 function handleTypingInput(e){
-const val=e.target.value;
-if(val.endsWith(' ')){
-let typedWord=val.trim();
-typedWords.push(typedWord);
-currentWordIndex++;
-currentInputChars="";
-e.target.value="";
-if(currentWordIndex>=wordsArray.length){
-submit();
-return;
-}
-}else{
-currentInputChars=val;
-}
-renderPassageHTML();
+  const val = e.target.value;
+  if(val.endsWith(' ')){
+    let typedWord = val.trim();
+    typedWords.push(typedWord);
+    currentWordIndex++;
+    currentInputChars = "";
+    e.target.value = "";
+    if(currentWordIndex >= wordsArray.length){
+      submitTest();
+      return;
+    }
+  } else {
+    currentInputChars = val;
+  }
+  renderPassageHTML();
 }
 
 function updateTimer(){
-const m=Math.floor(time/60),s=time%60;
-document.getElementById('timer').innerText=`⏱️ ${m}:${s.toString().padStart(2,'0')}`;
+  const m = Math.floor(time / 60), s = time % 60;
+  document.getElementById('timer').innerText = `⏱️ ${m}:${s.toString().padStart(2, '0')}`;
 }
 
-function submit(){
-clearInterval(timer);
-document.removeEventListener('click',focusHiddenInput);
-const hidden=document.getElementById('hiddenInput');
-if(hidden) hidden.removeEventListener('input',handleTypingInput);
+function submitTest(){
+  clearInterval(timer);
+  document.removeEventListener('click', focusHiddenInput);
+  const hidden = document.getElementById('hiddenInput');
+  if(hidden) hidden.removeEventListener('input', handleTypingInput);
 
-if(currentInputChars.trim().length>0 && currentWordIndex<wordsArray.length){
-typedWords.push(currentInputChars.trim());
-}
+  if(currentInputChars.trim().length > 0 && currentWordIndex < wordsArray.length){
+    typedWords.push(currentInputChars.trim());
+  }
 
-const timeMin=(Date.now()-startTime)/60000;
-const timeTakenSec=Math.round((Date.now()-startTime)/1000);
-const totalTypedCount=typedWords.length;
-const wpm=timeMin>0?Math.round(totalTypedCount/timeMin):0;
+  const timeMin = (Date.now() - startTime) / 60000;
+  const timeTakenSec = Math.round((Date.now() - startTime) / 1000);
+  const totalTypedCount = typedWords.length;
+  const wpm = timeMin > 0 ? Math.round(totalTypedCount / timeMin) : 0;
 
-let correctWordsCount=0;
-for(let i=0;i<typedWords.length;i++){
-if(i<wordsArray.length && typedWords[i]===wordsArray[i]) correctWordsCount++;
-}
+  let correctWordsCount = 0;
+  for(let i = 0; i < typedWords.length; i++){
+    if(i < wordsArray.length && typedWords[i] === wordsArray[i]) correctWordsCount++;
+  }
 
-const accuracy=totalTypedCount>0?Math.round((correctWordsCount/totalTypedCount)*100):100;
-const maxMarks=cur.max_marks;
-const passMarks=cur.pass_marks;
-const totalPassageWords=wordsArray.length;
+  const accuracy = totalTypedCount > 0 ? Math.round((correctWordsCount / totalTypedCount) * 100) : 100;
+  const maxMarks = cur.max_marks;
+  const passMarks = cur.pass_marks;
+  const totalPassageWords = wordsArray.length;
 
-let marks= (correctWordsCount / totalPassageWords) * maxMarks;
-if(marks<0) marks=0;
-if(marks>maxMarks) marks=maxMarks;
+  let marks = (correctWordsCount / totalPassageWords) * maxMarks;
+  if(marks < 0) marks = 0;
+  if(marks > maxMarks) marks = maxMarks;
 
-const passed=marks>=passMarks;
-const mins=Math.floor(timeTakenSec/60),secs=timeTakenSec%60;
-const candidateName=document.getElementById('uname').value;
+  const passed = marks >= passMarks;
+  const mins = Math.floor(timeTakenSec / 60), secs = timeTakenSec % 60;
+  const candidateName = document.getElementById('uname').value;
 
-document.getElementById('testArea').style.display='none';
-document.getElementById('resultPage').style.display='block';
-document.getElementById('rName').innerText=candidateName;
-const now=new Date();
-const dateStr=`${now.getDate().toString().padStart(2,'0')}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getFullYear()}, ${now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true})}`;
-document.getElementById('rDate').innerText=dateStr;
+  document.getElementById('testArea').style.display = 'none';
+  document.getElementById('resultPage').style.display = 'block';
+  document.getElementById('rName').innerText = candidateName;
+  const now = new Date();
+  const dateStr = `${now.getDate().toString().padStart(2,'0')}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getFullYear()}, ${now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true})}`;
+  document.getElementById('rDate').innerText = dateStr;
 
-document.getElementById('rTable').innerHTML=`
-<tr><td>Total Time Taken</td><td>${mins}m ${secs}s</td></tr>
-<tr><td>Maximum Marks</td><td>${maxMarks}</td></tr>
-<tr><td>Passing Marks</td><td>${passMarks}</td></tr>
-<tr><td>Marks Obtained</td><td class="marks-blue">${marks.toFixed(2)}</td></tr>
-<tr><td>Final Status</td><td class="${passed?'status-pass':'status-fail'}">${passed?'QUALIFIED (PASS)':'NOT QUALIFIED (FAIL)'}</td></tr>
-<tr><td>Total Words Typed</td><td>${totalTypedCount}</td></tr>
-<tr><td>Correct Words</td><td>${correctWordsCount}</td></tr>
-<tr><td>Gross Speed</td><td>${wpm} WPM</td></tr>
-<tr><td>Accuracy</td><td>${accuracy}%</td></tr>
-`;
+  document.getElementById('rTable').innerHTML = `
+    <tr><td>Total Time Taken</td><td>${mins}m ${secs}s</td></tr>
+    <tr><td>Maximum Marks</td><td>${maxMarks}</td></tr>
+    <tr><td>Passing Marks</td><td>${passMarks}</td></tr>
+    <tr><td>Marks Obtained</td><td class="marks-blue">${marks.toFixed(2)}</td></tr>
+    <tr><td>Final Status</td><td class="${passed?'status-pass':'status-fail'}">${passed?'QUALIFIED (PASS)':'NOT QUALIFIED (FAIL)'}</td></tr>
+    <tr><td>Total Words Typed</td><td>${totalTypedCount}</td></tr>
+    <tr><td>Correct Words</td><td>${correctWordsCount}</td></tr>
+    <tr><td>Gross Speed</td><td>${wpm} WPM</td></tr>
+    <tr><td>Accuracy</td><td>${accuracy}%</td></tr>
+  `;
 
-let compareHTML='';
-for(let i=0;i<wordsArray.length;i++){
-let expected=wordsArray[i];
-let userW=typedWords[i]||"";
-if(userW===expected){
-compareHTML+=`<span class="ok-char">${escapeHtml(userW)}</span> `;
-}else{
-compareHTML+=`<span class="err-char">${escapeHtml(userW||'___')}</span> `;
-}
-}
-document.getElementById('compareContainer').innerHTML=compareHTML;
+  let compareHTML = '';
+  for(let i = 0; i < wordsArray.length; i++){
+    let expected = wordsArray[i];
+    let userW = typedWords[i] || "";
+    if(userW === expected){
+      compareHTML += `<span class="ok-char">${escapeHtml(userW)}</span> `;
+    } else {
+      compareHTML += `<span class="err-char">${escapeHtml(userW || '___')}</span> `;
+    }
+  }
+  document.getElementById('compareContainer').innerHTML = compareHTML;
 
-lastResultText=`🚀 Australian Typing Hub - LDC 2026\n👤 Candidate: ${candidateName}\n📊 Test: ${cur.name}\n⚡ Speed: ${wpm} WPM\n🎯 Accuracy: ${accuracy}%\n🏆 Marks: ${marks.toFixed(2)} / ${maxMarks}\n📌 Status: ${passed?'PASS':'FAIL'}\n\nJoin Free Daily Portal: https://t.me/ldctop100rank2026`;
+  lastResultText = `🚀 Australian Typing Hub - LDC 2026\n👤 Candidate: ${candidateName}\n📊 Test: ${cur.name}\n⚡ Speed: ${wpm} WPM\n🎯 Accuracy: ${accuracy}%\n🏆 Marks: ${marks.toFixed(2)} / ${maxMarks}\n📌 Status: ${passed?'PASS':'FAIL'}\n\nJoin Free Daily Portal: https://t.me/ldctop100rank2026`;
 }
 
 function escapeHtml(text){
-return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 function downloadScorecard(){
-const captureEl=document.getElementById('captureArea');
-html2canvas(captureEl,{scale:2,useCORS:true}).then(canvas=>{
-const link=document.createElement('a');
-link.download=`ATH_LDC_Result_${document.getElementById('uname'].value}.png`;
-link.href=canvas.toDataURL('image/png');
-link.click();
-});
+  const captureEl = document.getElementById('captureArea');
+  html2canvas(captureEl, {scale: 2, useCORS: true}).then(canvas => {
+    const link = document.createElement('a');
+    link.download = `ATH_LDC_Result_${document.getElementById('uname').value}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  });
 }
 
 function shareWhatsApp(){
-window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(lastResultText)}`,'_blank');
+  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(lastResultText)}`, '_blank');
 }
 
 function shareTelegram(){
-window.open(`https://t.me/share/url?url=${encodeURIComponent('https://t.me/ldctop100rank2026')}&text=${encodeURIComponent(lastResultText)}`,'_blank');
+  window.open(`https://t.me/share/url?url=${encodeURIComponent('https://t.me/ldctop100rank2026')}&text=${encodeURIComponent(lastResultText)}`, '_blank');
 }
 
 function closeAdmin(){
-document.getElementById('adminPanel').style.display='none';
-document.getElementById('homePage').style.display='block';
+  document.getElementById('adminPanel').style.display = 'none';
+  document.getElementById('homePage').style.display = 'block';
 }
 
-function showMsg(t,c){
-const m=document.getElementById('msg');
-m.className=c;
-m.innerText=t;
-setTimeout(()=>m.innerText='',3000);
+function showMsg(t, c){
+  const m = document.getElementById('msg');
+  m.className = c;
+  m.innerText = t;
+  setTimeout(() => m.innerText = '', 3000);
 }
 
 function saveTest(){
-const name=document.getElementById('tname_input').value.trim();
-const text=document.getElementById('ttext').value.trim();
-const max=parseFloat(document.getElementById('tmax').value)||25;
-const pass=parseFloat(document.getElementById('tpass').value)||10;
-if(!name||!text){showMsg('❌ नाम और Passage जरूरी है','error');return}
+  const name = document.getElementById('tname_input').value.trim();
+  const text = document.getElementById('ttext').value.trim();
+  const max = parseFloat(document.getElementById('tmax').value) || 25;
+  const pass = parseFloat(document.getElementById('tpass').value) || 10;
+  if(!name || !text){ showMsg('❌ नाम और Passage जरूरी है', 'error'); return; }
 
-tests.unshift({name, text, max_marks: max, pass_marks: pass});
-localStorage.setItem('ath_tests', JSON.stringify(tests));
-showMsg('✅ Test Save हो गया!','success');
-document.getElementById('tname_input').value='';
-document.getElementById('ttext').value='';
-loadTests();
-load();
+  tests = JSON.parse(localStorage.getItem('ath_tests')) || [];
+  tests.unshift({name, text, max_marks: max, pass_marks: pass});
+  localStorage.setItem('ath_tests', JSON.stringify(tests));
+  showMsg('✅ Test Save हो गया!', 'success');
+  document.getElementById('tname_input').value = '';
+  document.getElementById('ttext').value = '';
+  loadTests();
 }
 
 function loadTests(){
-const list=document.getElementById('testsList');
-if(!tests||!tests.length){list.innerHTML='<p style="color:#666;text-align:center">कोई Test नहीं</p>';return}
-list.innerHTML=tests.map((t, index)=>`
-<div class="test-item">
-<div style="font-weight:bold;color:#1a237e">${t.name}</div>
-<div>Max Marks: ${t.max_marks} | Pass: ${t.pass_marks}</div>
-<button class="btn btn-red" style="padding:4px;font-size:11px;margin-top:4px" onclick="deleteTest(${index})">🗑️ डिलीट करें</button>
-</div>`).join('');
+  tests = JSON.parse(localStorage.getItem('ath_tests')) || [];
+  const list = document.getElementById('testsList');
+  if(!tests.length){ 
+    list.innerHTML = '<p style="color:#666;text-align:center">कोई Test नहीं</p>'; 
+    return; 
+  }
+  list.innerHTML = tests.map((t, index) => `
+    <div class="test-item">
+      <div style="font-weight:bold;color:#1a237e">${t.name}</div>
+      <div>Max Marks: ${t.max_marks} | Pass: ${t.pass_marks}</div>
+      <button class="btn btn-red" style="padding:4px;font-size:11px;margin-top:4px" onclick="deleteTest(${index})">🗑️ डिलीट करें</button>
+    </div>`).join('');
 }
 
 function deleteTest(index){
-tests.splice(index, 1);
-localStorage.setItem('ath_tests', JSON.stringify(tests));
-loadTests();
-load();
+  tests = JSON.parse(localStorage.getItem('ath_tests')) || [];
+  tests.splice(index, 1);
+  localStorage.setItem('ath_tests', JSON.stringify(tests));
+  loadTests();
 }
 </script>
 </body>
