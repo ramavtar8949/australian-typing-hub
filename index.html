@@ -169,7 +169,8 @@ const defaultTests = [
 ];
 
 let tests = JSON.parse(localStorage.getItem('ath_tests')) || defaultTests;
-if(!localStorage.getItem('ath_tests')){
+if(!localStorage.getItem('ath_tests') || tests.length === 0){
+  tests = defaultTests;
   localStorage.setItem('ath_tests', JSON.stringify(tests));
 }
 
@@ -180,6 +181,12 @@ function renderHomeFolders(){
   tests = JSON.parse(localStorage.getItem('ath_tests')) || defaultTests;
   const sel = document.getElementById('folderSelect');
   let html = '';
+  
+  if(!tests || tests.length === 0){
+    sel.innerHTML = '<option value="">कोई टेस्ट उपलब्ध नहीं है (Admin से जोड़ें)</option>';
+    return;
+  }
+
   timeFolders.forEach(min => {
     let folderTests = tests.filter(t => parseInt(t.duration) === min);
     if(folderTests.length > 0){
@@ -226,15 +233,17 @@ function startTest(){
   const idx = document.getElementById('folderSelect').value;
   if(!name){ alert('कृपया पहले अपना नाम दर्ज करें!'); return; }
   tests = JSON.parse(localStorage.getItem('ath_tests')) || defaultTests;
+  if(idx === "" || !tests[idx]){ alert('कृपया मान्य टेस्ट फोल्डर चुनें!'); return; }
   cur = tests[idx];
-  if(!cur){ alert('कृपया टेस्ट चुनें!'); return; }
+  if(!cur || !cur.text){ alert('चयनित टेस्ट में कोई टेक्स्ट उपलब्ध नहीं है!'); return; }
+  
   document.getElementById('homePage').style.display = 'none';
   document.getElementById('testArea').style.display = 'block';
   wordsArray = cur.text.trim().split(/\s+/);
   typedWords = [];
   currentWordIndex = 0;
   currentInputChars = "";
-  time = parseInt(cur.duration) * 60;
+  time = parseInt(cur.duration || 5) * 60;
   renderPassageHTML();
   startTimer();
   const hidden = document.getElementById('hiddenInput');
@@ -251,6 +260,7 @@ function focusHiddenInput(){
 
 function renderPassageHTML(){
   const container = document.getElementById('passageHTML');
+  if(!wordsArray || wordsArray.length === 0) return;
   let html = '';
   for(let i = 0; i < wordsArray.length; i++){
     let cls = "word";
@@ -259,7 +269,6 @@ function renderPassageHTML(){
       else cls += " incorrect";
     } else if(i === currentWordIndex){
       cls += " current";
-      // यदि वर्तमान शब्द टाइप करते समय गलत अक्षर लिखा जा रहा हो, तो तुरंत लाल रंग दिखाने के लिए:
       if(currentInputChars.length > 0){
         let targetSub = wordsArray[i].substring(0, currentInputChars.length);
         if(currentInputChars !== targetSub){
@@ -273,7 +282,7 @@ function renderPassageHTML(){
     if(i === currentWordIndex && currentInputChars.length > 0){
       displayWord = currentInputChars;
     }
-    html += `<span class="${cls}" id="w-${i}">${displayWord}</span> `;
+    html += `<span class="${cls}" id="w-${i}">${escapeHtml(displayWord)}</span> `;
   }
   container.innerHTML = html;
   const activeEl = document.getElementById(`w-${currentWordIndex}`);
@@ -336,21 +345,22 @@ function submitTest(){
   }
   const netWpm = timeMin > 0 ? Math.round(correctWordsCount / timeMin) : 0;
   const accuracy = totalTypedCount > 0 ? Math.round((correctWordsCount / totalTypedCount) * 100) : 100;
-  const maxMarks = cur.max_marks;
-  const passMarks = cur.pass_marks;
-  const totalPassageWords = wordsArray.length;
+  const maxMarks = cur ? cur.max_marks : 25;
+  const passMarks = cur ? cur.pass_marks : 10;
+  const totalPassageWords = wordsArray.length > 0 ? wordsArray.length : 1;
   let marks = (correctWordsCount / totalPassageWords) * maxMarks;
   if(marks < 0) marks = 0;
   if(marks > maxMarks) marks = maxMarks;
   const passed = marks >= passMarks;
   const mins = Math.floor(timeTakenSec / 60), secs = timeTakenSec % 60;
-  const candidateName = document.getElementById('uname').value;
+  const candidateName = document.getElementById('uname').value || "Candidate";
   const now = new Date();
   const dateStr = `${now.getDate().toString().padStart(2,'0')}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getFullYear()}, ${now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true})}`;
+  
   resultsHistory = JSON.parse(localStorage.getItem('ath_results_history')) || [];
   resultsHistory.unshift({
     name: candidateName,
-    testName: `${cur.name} (${cur.duration}m)`,
+    testName: cur ? `${cur.name} (${cur.duration}m)` : "Test",
     date: dateStr,
     netWpm: netWpm,
     grossWpm: grossWpm,
@@ -359,12 +369,13 @@ function submitTest(){
     status: passed ? 'PASS' : 'FAIL'
   });
   localStorage.setItem('ath_results_history', JSON.stringify(resultsHistory));
+  
   document.getElementById('testArea').style.display = 'none';
   document.getElementById('resultPage').style.display = 'block';
   document.getElementById('rName').innerText = candidateName;
   document.getElementById('rDate').innerText = dateStr;
   document.getElementById('rTable').innerHTML = `
-    <tr><td>Selected Test</td><td><b>${cur.name} (${cur.duration} Mins Folder)</b></td></tr>
+    <tr><td>Selected Test</td><td><b>${cur ? cur.name : 'Test'} (${cur ? cur.duration : 5} Mins Folder)</b></td></tr>
     <tr><td>Total Time Taken</td><td>${mins}m ${secs}s</td></tr>
     <tr><td>Maximum Marks</td><td>${maxMarks}</td></tr>
     <tr><td>Passing Marks</td><td>${passMarks}</td></tr>
@@ -376,6 +387,7 @@ function submitTest(){
     <tr><td>Net Speed</td><td><b>${netWpm} WPM</b></td></tr>
     <tr><td>Accuracy</td><td>${accuracy}%</td></tr>
   `;
+  
   let compareHTML = '';
   for(let i = 0; i < wordsArray.length; i++){
     let expected = wordsArray[i];
@@ -387,29 +399,17 @@ function submitTest(){
     }
   }
   document.getElementById('compareContainer').innerHTML = compareHTML;
-  lastResultText = `🚀 Australian Typing Hub - LDC 2026\n👤 Candidate: ${candidateName}\n📊 Test: ${cur.name} (${cur.duration} Min)\n⚡ Net Speed: ${netWpm} WPM (Gross: ${grossWpm} WPM)\n🎯 Accuracy: ${accuracy}%\n🏆 Marks: ${marks.toFixed(2)} / ${maxMarks}\n📌 Status: ${passed?'PASS':'FAIL'}\n\nJoin Free Daily Portal: https://t.me/ldctop100rank2026`;
+  
+  lastResultText = `🚀 Australian Typing Hub - LDC 2026\n👤 Candidate: ${candidateName}\n📊 Test: ${cur ? cur.name : 'Test'} (${cur ? cur.duration : 5} Min)\n⚡ Net Speed: ${netWpm} WPM (Gross: ${grossWpm} WPM)\n🎯 Accuracy: ${accuracy}%\n🏆 Marks: ${marks.toFixed(2)} / ${maxMarks}\n📌 Status: ${passed?'PASS':'FAIL'}\n\nJoin Free Daily Portal: https://t.me/ldctop100rank2026`;
 }
 
 function escapeHtml(text){
-  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  if(!text) return "";
+  return text.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 function downloadScorecard(){
   const captureEl = document.getElementById('captureArea');
   html2canvas(captureEl, {scale: 2, useCORS: true}).then(canvas => {
     const link = document.createElement('a');
-    link.download = `ATH_LDC_Result_${document.getElementById('uname').value}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-  });
-}
-
-function shareWhatsApp(){
-  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(lastResultText)}`, '_blank');
-}
-
-function shareTelegram(){
-  window.open(`https://t.me/share/url?url=${encodeURIComponent('https://t.me/ldctop100rank2026')}&text=${encodeURIComponent(lastResultText)}`, '_blank');
-}
-
-function closeAdmin()
+    link.download = `ATH_
