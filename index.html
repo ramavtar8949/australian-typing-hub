@@ -21,10 +21,9 @@ label{font-weight:600;color:#333;font-size:14px}
 .btn-green{background:linear-gradient(90deg,#4CAF50,#45a049);color:#fff}
 .btn-blue{background:linear-gradient(90deg,#2196F3,#1976D2);color:#fff}
 .btn-red{background:linear-gradient(90deg,#f44336,#d32f2f);color:#fff}
-.btn-wa{background:linear-gradient(90deg,#25D366,#128C7E);color:#fff}
 .btn-tg{background:linear-gradient(90deg,#0088cc,#006699);color:#fff}
 .loading{text-align:center;color:#FF9800;font-weight:600;margin:8px 0}
-#testArea,#resultPage,#adminPanel{display:none}
+#testArea,#resultPage,#adminLoginBox,#adminPanel{display:none}
 
 #timerBar{position:sticky;top:0;background:#1a237e;color:#fff;padding:10px;border-radius:8px;font-size:18px;font-weight:bold;text-align:center;z-index:100;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
 #typingBoxContainer{background:#f8f9fa;padding:15px;border-radius:10px;border:2px solid #4CAF50;max-height:350px;overflow-y:auto;margin:10px 0;line-height:2}
@@ -100,7 +99,17 @@ textarea{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-si
 
 <button class="btn btn-green" onclick="startTest()">🚀 Start Exam Mode Test</button>
 <button class="btn btn-tg" onclick="window.open('https://t.me/ldctop100rank2026','_blank')">📢 Telegram Group Join करें</button>
-<button class="btn btn-red" onclick="openAdmin()">🔐 Admin Panel</button>
+<button class="btn btn-red" onclick="showAdminLogin()">🔐 Admin Panel</button>
+</div>
+
+<!-- Built-in Admin Login Box (Guaranteed mobile access) -->
+<div id="adminLoginBox">
+<h2 style="text-align:center;color:#1a237e;margin-bottom:10px">🔐 Admin Login</h2>
+<div id="loginMsg"></div>
+<label>पासवर्ड दर्ज करें:</label>
+<input type="password" id="adminPassInput" placeholder="Enter Password">
+<button class="btn btn-green" onclick="verifyAdminPass()">✅ Login करें</button>
+<button class="btn" onclick="cancelAdminLogin()" style="background:#666">❌ Back to Home</button>
 </div>
 
 <!-- Test Execution Area -->
@@ -138,7 +147,7 @@ textarea{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-si
 </div>
 </div>
 <button class="btn btn-green" onclick="downloadScorecard()" style="margin-top:12px">📥 Download Result Image</button>
-<button class="btn btn-wa" onclick="shareWhatsApp()">💬 Share on WhatsApp</button>
+<button class="btn btn-blue" onclick="shareWhatsApp()">💬 Share on WhatsApp</button>
 <button class="btn btn-tg" onclick="shareTelegram()">✈️ Share on Telegram</button>
 <button class="btn btn-blue" onclick="window.print()">🖨️ Print Result</button>
 <button class="btn btn-red" onclick="location.reload()" style="background:#666">🔄 नया Test दें</button>
@@ -192,6 +201,31 @@ statusEl.style.color='#c62828';
 }
 }
 load();
+
+function showAdminLogin(){
+document.getElementById('homePage').style.display='none';
+document.getElementById('adminLoginBox').style.display='block';
+document.getElementById('adminPassInput').value='';
+}
+
+function cancelAdminLogin(){
+document.getElementById('adminLoginBox').style.display='none';
+document.getElementById('homePage').style.display='block';
+}
+
+function verifyAdminPass(){
+const p=document.getElementById('adminPassInput').value;
+const loginMsg=document.getElementById('loginMsg');
+if(p===ADMIN_PASS){
+document.getElementById('adminLoginBox').style.display='none';
+document.getElementById('adminPanel').style.display='block';
+loadTests();
+}else{
+loginMsg.className='error';
+loginMsg.innerText='❌ गलत पासवर्ड!';
+setTimeout(()=>loginMsg.innerText='',2000);
+}
+}
 
 function startTest(){
 const name=document.getElementById('uname').value.trim();
@@ -384,7 +418,7 @@ section.style.display='block';
 const list=document.getElementById('allResultsList');
 list.innerHTML='<p style="text-align:center;color:#666">Loading results & ranks...</p>';
 
-const {data,error}=await db.from('results').select('*').order('marks',{ascending:false}).limit(100);
+const, {data,error}=await db.from('results').select('*').order('marks',{ascending:false}).limit(100);
 if(error || !data || !data.length){
 list.innerHTML='<p style="text-align:center;color:#666">कोई रिजल्ट उपलब्ध नहीं है।</p>';
 return;
@@ -398,18 +432,6 @@ list.innerHTML=data.map((r, index)=>`
 <span style="font-size:10px;color:#888">🕒 ${new Date(r.created_at).toLocaleString()}</span>
 </div>
 `).join('');
-}
-
-// Direct Prompt Box for Admin Login (Guaranteed to work on all phones)
-function openAdmin(){
-let p = prompt("🔐 कृपया Admin Password दर्ज करें:");
-if(p === ADMIN_PASS){
-document.getElementById('homePage').style.display='none';
-document.getElementById('adminPanel').style.display='block';
-loadTests();
-} else if(p !== null) {
-alert("❌ गलत पासवर्ड!");
-}
 }
 
 function closeAdmin(){
@@ -426,10 +448,10 @@ setTimeout(()=>m.innerText='',3000);
 }
 
 async function saveTest(){
-const name=document.getElementById('tname_input').value.trim();
-const text=document.getElementById('ttext').value.trim();
-const max=parseFloat(document.getElementById('tmax').value)||25;
-const pass=parseFloat(document.getElementById('tpass').value)||10;
+const name=document.getElementById('tname_input'].value.trim();
+const text=document.getElementById('ttext'].value.trim();
+const max=parseFloat(document.getElementById('tmax'].value)||25;
+const pass=parseFloat(document.getElementById('tpass'].value)||10;
 if(!name||!text){showMsg('❌ नाम और Passage जरूरी है','error');return}
 showMsg('⏳ Saving...','info');
 const words=text.split(/\s+/).filter(w=>w).length;
@@ -440,7 +462,7 @@ if(error){showMsg('❌ '+error.message,'error')}
 else{
 showMsg('✅ Test Save हो गया!','success');
 document.getElementById('tname_input'].value='';
-document.getElementById('ttext').value='';
+document.getElementById('ttext'].value='';
 loadTests();load();
 }
 }
